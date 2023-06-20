@@ -1,4 +1,8 @@
 #include "oslabs.h"
+#include <limits.h> // Include the <limits.h> header file
+
+struct PCB NULLPCB = {0, 0, 0, 0, 0, 0, 0}; // Declare and initialize the NULLPCB
+
 
 // Function to handle the arrival of a process for execution
 void arrival(struct PCB ready_queue[], int *queue_count, struct PCB process) {
