@@ -1,8 +1,6 @@
 #include "oslabs.h"
 #include <limits.h>
 
-#define QUEUEMAX 50
-
 const struct PCB NULLPCB = {0, 0, 0, 0, 0, 0, 0};
 
 // Function to handle the arrival of a process for execution
@@ -55,7 +53,7 @@ struct PCB priority_based_preemptive_scheduling(struct PCB ready_queue[], int qu
         if (ready_queue[i].execution_endtime <= timestamp) {
             continue;
         }
-        if (ready_queue[i].process_priority < highest_priority) {
+                if (ready_queue[i].process_priority < highest_priority) {
             highest_priority = ready_queue[i].process_priority;
             selected_process = ready_queue[i];
         }
@@ -73,5 +71,14 @@ struct PCB shortest_remaining_time_next(struct PCB ready_queue[], int queue_coun
     
     // Find the process with the shortest remaining time that is ready to execute
     for (int i = 0; i < queue_count; i++) {
-        if (ready_queue[i].execution_endtime <= timestamp) {
-            continue
+        int remaining_time = ready_queue[i].execution_endtime - timestamp;
+        if (remaining_time < shortest_remaining_time) {
+            shortest_remaining_time = remaining_time;
+            selected_process = ready_queue[i];
+        }
+    }
+    
+    // Return the PCB of the selected process
+    return selected_process;
+}
+
