@@ -41,22 +41,30 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
 struct PCB handle_process_completion_pp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
     struct PCB completed_process;
     completed_process = ready_queue[0];
-    
-    // Shift the remaining processes in the ready queue
-    for (int i = 0; i < *queue_cnt - 1; i++) {
-        ready_queue[i] = ready_queue[i + 1];
-    }
-    (*queue_cnt)--;
-    
+
     // Select the next process based on the highest priority
     struct PCB next_process = NULLPCB;
     int highest_priority = INT_MAX;
+    int highest_priority_index = -1;
     for (int i = 0; i < *queue_cnt; i++) {
         if (ready_queue[i].process_priority < highest_priority) {
             highest_priority = ready_queue[i].process_priority;
             next_process = ready_queue[i];
+            highest_priority_index = i;
         }
     }
+
+    // Shift the remaining processes after the selected process in the ready queue
+    for (int i = highest_priority_index; i < *queue_cnt - 1; i++) {
+        ready_queue[i] = ready_queue[i + 1];
+    }
+    (*queue_cnt)--;
+
+    // Shift the remaining processes after the completed process in the ready queue
+    for (int i = 0; i < *queue_cnt - 1; i++) {
+        ready_queue[i] = ready_queue[i + 1];
+    }
+    (*queue_cnt)--;
 
     // Update the execution start time of the next process (if any)
     if (next_process.process_id != 0) {
@@ -67,50 +75,7 @@ struct PCB handle_process_completion_pp(struct PCB ready_queue[QUEUEMAX], int *q
     return next_process;
 }
 
-struct PCB handle_process_arrival_srtp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, struct PCB current_process, struct PCB new_process, int time_stamp) {
-    if(current_process.process_id == 0 || new_process.remaining_bursttime < current_process.remaining_bursttime) {
-        new_process.execution_starttime = time_stamp;
-        new_process.execution_endtime = time_stamp + new_process.remaining_bursttime;
-        
-        if(current_process.process_id != 0) {
-            current_process.execution_endtime = 0;
-            ready_queue[*queue_cnt] = current_process;
-            (*queue_cnt)++;
-        }
-        
-        return new_process;
-    } else {
-        new_process.execution_starttime = 0;
-        new_process.execution_endtime = 0;
-        ready_queue[*queue_cnt] = new_process;
-        (*queue_cnt)++;
-        
-        return current_process;
-    }
-}
 
-struct PCB handle_process_completion_srtp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
-    int nextProcessIndex = 0;
-    if (*queue_cnt == 0) {
-        struct PCB nullpcb = {0, 0, 0, 0, 0, 0};
-        return nullpcb;
-    } else {
-        for (int i = 1; i < *queue_cnt; i++) {
-            if (ready_queue[i].remaining_bursttime < ready_queue[nextProcessIndex].remaining_bursttime) {
-                nextProcessIndex = i;
-            }
-        }
-        struct PCB nextProcess = ready_queue[nextProcessIndex];
-        // update execution_starttime and execution_endtime
-        nextProcess.execution_starttime = timestamp;
-        nextProcess.execution_endtime = timestamp + nextProcess.total_bursttime;
-        for (int i = nextProcessIndex; i < *queue_cnt - 1; i++) {
-            ready_queue[i] = ready_queue[i+1];
-        }
-        (*queue_cnt)--;
-        return nextProcess;
-    }
-}
 
 
 void release_memory(struct MEMORY_BLOCK freed_block, struct MEMORY_BLOCK memory_map[MAPMAX],int *map_cnt) {
