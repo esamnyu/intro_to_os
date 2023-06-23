@@ -1,5 +1,6 @@
 #include "oslabs.h"
 #include <limits.h>
+#include <stdlib.h>
 
 const struct PCB NULLPCB = {0, 0, 0, 0, 0, 0, 0};
 
@@ -80,7 +81,7 @@ struct PCB handle_process_completion_srtp(struct PCB ready_queue[QUEUEMAX], int 
     int nextProcessIndex = 0;
     for (int i = 1; i < *queue_cnt; i++) {
         // If we find a process with smaller remaining burst time, we update nextProcessIndex
-        if (ready_queue[i].remaining_bursttime < ready       _queue[nextProcessIndex].remaining_bursttime) {
+        if (ready_queue[i].remaining_bursttime < ready_queue[nextProcessIndex].remaining_bursttime) {
             nextProcessIndex = i;
         }
     }
