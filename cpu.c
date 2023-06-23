@@ -14,7 +14,7 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
         (*queue_cnt)++;
         return new_process;
     } else {
-        if (new_process.process_priority < current_process.process_priority) { // New process preempts the current one
+        if (new_process.process_priority > current_process.process_priority) { // New process preempts the current one
             current_process.remaining_bursttime -= timestamp - current_process.execution_starttime;
             current_process.execution_endtime = timestamp + current_process.remaining_bursttime;
             new_process.execution_endtime = timestamp + new_process.total_bursttime;
