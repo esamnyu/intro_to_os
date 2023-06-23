@@ -80,7 +80,7 @@ struct PCB handle_process_completion_pp(struct PCB ready_queue[QUEUEMAX], int *q
     return next_process;
 }
 
-struct PCB handle_process_arrival_srtp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, struct PCB current_process, struct PCB new_process, int timestamp) {
+struct PCB handle_process_arrival_srtp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, struct PCB current_process, struct PCB new_process, int time_stamp) {
     new_process.remaining_bursttime = new_process.total_bursttime;
 
     if (current_process.process_id == 0) { // Assuming process_id = 0 means it's the NULLPCB
