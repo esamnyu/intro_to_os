@@ -527,24 +527,28 @@ struct PCB handle_process_arrival_rr(struct PCB ready_queue[QUEUEMAX], int *queu
     return current_process;
 }
 
-struct PCB handle_process_completion_rr(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp, int time_quantum) {
-    struct PCB next_process;
-
-    if (*queue_cnt != 0) { // if there are still some processes in ready_queue
-        next_process = ready_queue[0]; // get the first process
-
-        // shift all the processes in the ready queue forward
-        for (int i = 0; i < *queue_cnt - 1; i++) {
-            ready_queue[i] = ready_queue[i+1];
-        }
-        (*queue_cnt)--; // decrease the queue count
-    } else {
-        next_process.process_id = 0; // no processes are available in ready_queue, return a null process
+struct PCB handle_process_completion_rr(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, struct PCB current_process, int timestamp, int time_quantum) {
+    if (current_process.remaining_bursttime > time_quantum) {
+        // The current process didn't finish, update its burst time and add it back to the queue
+        current_process.remaining_bursttime -= time_quantum;
+        ready_queue[*queue_cnt] = current_process;
+        (*queue_cnt)++;
     }
 
-    // Set up the next_process's start and end execution time
+    // Now handle the next process as you were before
+    struct PCB next_process;
+    if (*queue_cnt != 0) {
+        next_process = ready_queue[0];
+        for (int i = 0; i < *queue_cnt - 1; i++) {
+            ready_queue[i] = ready_queue[i + 1];
+        }
+        (*queue_cnt)--;
+    } else {
+        next_process.process_id = 0;
+    }
     next_process.execution_starttime = timestamp;
-    next_process.execution_endtime = timestamp + next_process.remaining_bursttime;
-    
+    next_process.execution_endtime = timestamp + MIN(next_process.remaining_bursttime, time_quantum); // The endtime should be the minimum of remaining burst time and time quantum
+
     return next_process;
 }
+
