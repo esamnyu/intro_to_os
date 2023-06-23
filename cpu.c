@@ -544,7 +544,7 @@ struct PCB handle_process_completion_rr(struct PCB ready_queue[QUEUEMAX], int *q
     struct PCB next_process = ready_queue[0];
     return next_process;
 }
-
-int main() {
-    return 0;
-}
+// Is not required for this assignment  
+// int main() {
+//     return 0;
+// }
