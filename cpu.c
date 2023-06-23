@@ -14,20 +14,24 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
         (*queue_cnt)++;
         return new_process;
     } else {
-        if (new_process.process_priority > current_process.process_priority) { // New process preempts the current one
+        if (new_process.process_priority < current_process.process_priority) { // New process preempts the current one
             current_process.remaining_bursttime -= timestamp - current_process.execution_starttime;
             current_process.execution_endtime = timestamp + current_process.remaining_bursttime;
-            new_process.execution_endtime = timestamp + new_process.total_bursttime;
-            ready_queue[*queue_cnt] = current_process;
+            ready_queue[*queue_cnt] = current_process; // current_process is added back to ready_queue
             (*queue_cnt)++;
+            new_process.execution_endtime = timestamp + new_process.total_bursttime;
+            ready_queue[*queue_cnt] = new_process; // new_process is added to ready_queue
+            (*queue_cnt)++;
+            return new_process;
         } else { // Current process continues
             new_process.execution_endtime = current_process.execution_endtime + new_process.total_bursttime;
+            ready_queue[*queue_cnt] = new_process;
+            (*queue_cnt)++;
+            return current_process; // current_process continues its execution
         }
     }
-    ready_queue[*queue_cnt] = new_process;
-    (*queue_cnt)++;
-    return new_process;
 }
+
 
 
 
