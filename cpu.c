@@ -527,36 +527,24 @@ struct PCB handle_process_arrival_rr(struct PCB ready_queue[QUEUEMAX], int *queu
     return current_process;
 }
 
-struct PCB handle_process_completion_rr(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp, int time_quantum) {
-    // Assuming the process at the head of the queue is the one that just completed or exhausted its time quantum
-    struct PCB completed_process = ready_queue[0];
+struct PCB handle_process_completion_rr(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
+    struct PCB next_process;
 
-    // We need to update its remaining burst time if it is not yet completed
-    int elapsed_time = timestamp - completed_process.execution_starttime;
-    if (elapsed_time < completed_process.remaining_bursttime) {
-        completed_process.remaining_bursttime -= elapsed_time;
+    if (*queue_cnt != 0) { // if there are still some processes in ready_queue
+        next_process = ready_queue[0]; // get the first process
+
+        // shift all the processes in the ready queue forward
+        for (int i = 0; i < *queue_cnt - 1; i++) {
+            ready_queue[i] = ready_queue[i+1];
+        }
+        (*queue_cnt)--; // decrease the queue count
     } else {
-        completed_process.remaining_bursttime = 0;
+        next_process.process_id = 0; // no processes are available in ready_queue, return a null process
     }
 
-    // Shift all the other processes in the queue
-    for (int i = 0; i < *queue_cnt - 1; i++) {
-        ready_queue[i] = ready_queue[i + 1];
-    }
-
-    (*queue_cnt)--; // Decrease the queue count
-
-    // If the completed process is not really completed (it just exhausted its time quantum), add it to the end of the queue
-    if (completed_process.remaining_bursttime > 0) {
-        ready_queue[*queue_cnt] = completed_process;
-        (*queue_cnt)++;
-    }
-
-    // The new current process is the one now at the head of the queue
-    struct PCB next_process = ready_queue[0];
+    // Set up the next_process's start and end execution time
+    next_process.execution_starttime = timestamp;
+    next_process.execution_endtime = timestamp + next_process.remaining_bursttime;
+    
     return next_process;
 }
-// Is not required for this assignment  
-// int main() {
-//     return 0;
-// }
