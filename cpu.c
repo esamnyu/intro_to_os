@@ -543,3 +543,6 @@ struct PCB handle_process_completion_rr(struct PCB ready_queue[QUEUEMAX], int *q
     return next_process;
 }
 
+int main() {
+    return 0;
+}
