@@ -9,29 +9,66 @@ const struct PCB NULLPCB = {0, 0, 0, 0, 0, 0, 0};
 
 
 struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, struct PCB current_process, struct PCB new_process, int timestamp) {
+
     new_process.remaining_bursttime = new_process.total_bursttime;
 
+
     if (current_process.process_id == 0) { // Assuming process_id = 0 means it's the NULLPCB
+
         new_process.execution_starttime = timestamp;
+
         new_process.execution_endtime = timestamp + new_process.total_bursttime;
+
+        ready_queue[*queue_cnt] = new_process;
+
+        (*queue_cnt)++;
+
         return new_process;
+
     } else {
-        if (new_process.process_priority < current_process.process_priority) {
-            current_process.execution_endtime = timestamp; // Update end time as it's preempted
-            ready_queue[*queue_cnt] = current_process; // Add current process back to ready queue
+
+        if (new_process.process_priority < current_process.process_priority) { // New process preempts the current one
+
+            current_process.remaining_bursttime -= timestamp - current_process.execution_starttime;
+
+            current_process.execution_endtime = timestamp; // The current process is preempted now, so its endtime should be now
+
+            ready_queue[*queue_cnt] = current_process; // current_process is added back to ready_queue
+
             (*queue_cnt)++;
+
             new_process.execution_starttime = timestamp;
+
             new_process.execution_endtime = timestamp + new_process.total_bursttime;
-            return new_process; // Return new process as it preempts the current process
-        } else {
-            new_process.execution_starttime = timestamp; // This won't affect execution as it's going to wait in ready queue
-            new_process.execution_endtime = timestamp + new_process.total_bursttime;
-            ready_queue[*queue_cnt] = new_process; // Add new process to ready queue
+
+            ready_queue[*queue_cnt] = new_process; // new_process is added to ready_queue
+
             (*queue_cnt)++;
-            return current_process; // Continue with current process
+
+            return new_process;
+
+        } else { // Current process continues
+
+            new_process.execution_starttime = 0; // As the new process is not starting execution now, its starttime should be 0
+
+            new_process.execution_endtime = 0; // As the new process is not ending execution now, its endtime should be 0
+
+            ready_queue[*queue_cnt] = new_process;
+
+            (*queue_cnt)++;
+
+            return current_process; // current_process continues its execution
+
         }
+
     }
+
 }
+
+
+
+
+
 
 struct PCB handle_process_completion_pp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
 
