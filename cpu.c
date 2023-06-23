@@ -10,13 +10,16 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
 
     if (current_process.process_id == 0) { // Assuming process_id = 0 means it's the NULLPCB
         new_process.execution_endtime = timestamp + new_process.total_bursttime;
-    } else {
-        ready_queue[*queue_cnt] = current_process;
+        ready_queue[*queue_cnt] = new_process;
         (*queue_cnt)++;
+        return new_process;
+    } else {
         if (new_process.process_priority < current_process.process_priority) { // New process preempts the current one
             current_process.remaining_bursttime -= timestamp - current_process.execution_starttime;
             current_process.execution_endtime = timestamp + current_process.remaining_bursttime;
             new_process.execution_endtime = timestamp + new_process.total_bursttime;
+            ready_queue[*queue_cnt] = current_process;
+            (*queue_cnt)++;
         } else { // Current process continues
             new_process.execution_endtime = current_process.execution_endtime + new_process.total_bursttime;
         }
@@ -25,6 +28,7 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
     (*queue_cnt)++;
     return new_process;
 }
+
 
 
 struct PCB handle_process_completion_pp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
