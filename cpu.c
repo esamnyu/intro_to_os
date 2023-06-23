@@ -90,27 +90,28 @@ struct PCB handle_process_arrival_srtp(struct PCB ready_queue[QUEUEMAX], int *qu
 }
 
 struct PCB handle_process_completion_srtp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
-    // We start by assuming that the first process in the queue will be the next
     int nextProcessIndex = 0;
-    for (int i = 1; i < *queue_cnt; i++) {
-        // If we find a process with smaller remaining burst time, we update nextProcessIndex
-        if (ready_queue[i].remaining_bursttime < ready_queue[nextProcessIndex].remaining_bursttime) {
-            nextProcessIndex = i;
+    if (*queue_cnt == 0) {
+        struct PCB nullpcb = {0, 0, 0, 0, 0, 0};
+        return nullpcb;
+    } else {
+        for (int i = 1; i < *queue_cnt; i++) {
+            if (ready_queue[i].remaining_bursttime < ready_queue[nextProcessIndex].remaining_bursttime) {
+                nextProcessIndex = i;
+            }
         }
+        struct PCB nextProcess = ready_queue[nextProcessIndex];
+        // update execution_starttime and execution_endtime
+        nextProcess.execution_starttime = timestamp;
+        nextProcess.execution_endtime = timestamp + nextProcess.total_bursttime;
+        for (int i = nextProcessIndex; i < *queue_cnt - 1; i++) {
+            ready_queue[i] = ready_queue[i+1];
+        }
+        (*queue_cnt)--;
+        return nextProcess;
     }
-
-    struct PCB next_process = ready_queue[nextProcessIndex];
-
-    // remove next_process from ready_queue and shift all other processes
-    for (int i = nextProcessIndex; i < *queue_cnt - 1; i++) {
-        ready_queue[i] = ready_queue[i + 1];
-    }
-
-    // Decrease the queue count
-    (*queue_cnt)--;
-    
-    return next_process;
 }
+
 
 void release_memory(struct MEMORY_BLOCK freed_block, struct MEMORY_BLOCK memory_map[MAPMAX],int *map_cnt) {
     struct MEMORY_BLOCK temp_map[MAPMAX];
