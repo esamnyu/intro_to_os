@@ -25,7 +25,6 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
 }
 
 struct PCB handle_process_completion_srtp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
-    struct PCB handle_process_completion_srtp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
     if (*queue_cnt == 0) {
         return NULLPCB;  // Return NULLPCB if the ready queue is empty
     }
@@ -49,8 +48,6 @@ struct PCB handle_process_completion_srtp(struct PCB ready_queue[QUEUEMAX], int 
     next_process.execution_endtime = timestamp + next_process.remaining_bursttime;
 
     return next_process;
-}
-
 }
 
 
