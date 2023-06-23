@@ -38,33 +38,34 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
 
 
 struct PCB handle_process_completion_pp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
-    struct PCB completed_process;
-    completed_process = ready_queue[0];
-    
-    // Shift the remaining processes in the ready queue
-    for (int i = 0; i < *queue_cnt - 1; i++) {
-        ready_queue[i] = ready_queue[i + 1];
-    }
-    (*queue_cnt)--;
-    
-    // Select the next process based on the highest priority
-    struct PCB next_process = NULLPCB;
-    int highest_priority = INT_MAX;
-    for (int i = 0; i < *queue_cnt; i++) {
-        if (ready_queue[i].process_priority < highest_priority) {
-            highest_priority = ready_queue[i].process_priority;
-            next_process = ready_queue[i];
-        }
-    }
+    struct PCB next_process;
 
-    // Update the execution start time of the next process (if any)
-    if (next_process.process_id != 0) {
+    if (*queue_cnt == 0) { // if there are no processes in the ready queue
+        next_process.process_id = 0; // return a null process
+    } else { 
+        // find the process with the highest priority (smallest priority value)
+        int min_priority_index = 0;
+        for (int i = 1; i < *queue_cnt; i++) {
+            if (ready_queue[i].process_priority < ready_queue[min_priority_index].process_priority) {
+                min_priority_index = i;
+            }
+        }
+
+        // remove the selected process from the queue
+        next_process = ready_queue[min_priority_index];
+        for (int i = min_priority_index; i < *queue_cnt - 1; i++) {
+            ready_queue[i] = ready_queue[i + 1];
+        }
+        (*queue_cnt)--;
+        
+        // set up the execution start and end times for the selected process
         next_process.execution_starttime = timestamp;
         next_process.execution_endtime = timestamp + next_process.remaining_bursttime;
     }
 
     return next_process;
 }
+
 
 struct PCB handle_process_arrival_srtp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, struct PCB current_process, struct PCB new_process, int time_stamp) {
     if(current_process.process_id == 0 || new_process.remaining_bursttime < current_process.remaining_bursttime) {
