@@ -572,28 +572,28 @@ struct PCB handle_process_completion_rr(struct PCB ready_queue[QUEUEMAX], int *q
     return next_process;
 }
 
-int main() {
-    struct PCB ready_queue[QUEUEMAX];
-    int queue_cnt = 0;
-    struct PCB current_process = {0, 0, 0, 0, 0, 0, 0};
-    struct PCB new_process = {5, 2, 5, 0, 0, 5, 4};
-    int timestamp = 2;
+// int main() {
+//     struct PCB ready_queue[QUEUEMAX];
+//     int queue_cnt = 0;
+//     struct PCB current_process = {0, 0, 0, 0, 0, 0, 0};
+//     struct PCB new_process = {5, 2, 5, 0, 0, 5, 4};
+//     int timestamp = 2;
 
-    struct PCB next_process = handle_process_arrival_pp(ready_queue, &queue_cnt, current_process, new_process, timestamp);
+//     struct PCB next_process = handle_process_arrival_pp(ready_queue, &queue_cnt, current_process, new_process, timestamp);
 
-    // Output the result
-    printf("Next process to execute - PID: %d\n", next_process.process_id);
-    printf("Ready queue count: %d\n", queue_cnt);
-    for (int i = 0; i < queue_cnt; i++) {
-        printf("Ready queue - PID: %d, AT: %d, TBT: %d, EST: %d, EET: %d, RBT: %d, Priority: %d\n",
-               ready_queue[i].process_id, ready_queue[i].arrival_timestamp,
-               ready_queue[i].total_bursttime, ready_queue[i].execution_starttime,
-               ready_queue[i].execution_endtime, ready_queue[i].remaining_bursttime,
-               ready_queue[i].process_priority);
-    }
+//     // Output the result
+//     printf("Next process to execute - PID: %d\n", next_process.process_id);
+//     printf("Ready queue count: %d\n", queue_cnt);
+//     for (int i = 0; i < queue_cnt; i++) {
+//         printf("Ready queue - PID: %d, AT: %d, TBT: %d, EST: %d, EET: %d, RBT: %d, Priority: %d\n",
+//                ready_queue[i].process_id, ready_queue[i].arrival_timestamp,
+//                ready_queue[i].total_bursttime, ready_queue[i].execution_starttime,
+//                ready_queue[i].execution_endtime, ready_queue[i].remaining_bursttime,
+//                ready_queue[i].process_priority);
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
 
 
 // int main() {
