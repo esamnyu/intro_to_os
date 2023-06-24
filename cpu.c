@@ -39,33 +39,43 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
 
 
 struct PCB handle_process_completion_pp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
-    struct PCB next_process;
-
-    if (*queue_cnt == 0) { // if there are no processes in the ready queue
-        next_process.process_id = 0; // return a null process
-    } else { 
-        // find the process with the highest priority (smallest priority value)
-        int min_priority_index = 0;
-        for (int i = 1; i < *queue_cnt; i++) {
-            if (ready_queue[i].process_priority < ready_queue[min_priority_index].process_priority) {
-                min_priority_index = i;
-            }
-        }
-
-        // remove the selected process from the queue
-        next_process = ready_queue[min_priority_index];
-        for (int i = min_priority_index; i < *queue_cnt - 1; i++) {
-            ready_queue[i] = ready_queue[i + 1];
-        }
-        (*queue_cnt)--;
-        
-        // set up the execution start and end times for the selected process
-        next_process.execution_starttime = timestamp;
-        next_process.execution_endtime = timestamp + next_process.remaining_bursttime;
+    // If the ready queue is empty, return NULLPCB
+    if (*queue_cnt == 0) {
+        return NULLPCB;
     }
 
-    return next_process;
+    // Initialize minimum priority variable and index of the highest priority process
+    int min_priority = INT_MAX;
+    int high_priority_index = 0;
+
+    // Find the PCB of the process in the ready queue with the highest priority
+    for (int i = 0; i < *queue_cnt; i++) {
+        if (ready_queue[i].process_priority < min_priority) {
+            min_priority = ready_queue[i].process_priority;
+            high_priority_index = i;
+        }
+    }
+
+    // Save the highest priority PCB
+    struct PCB high_priority_pcb = ready_queue[high_priority_index];
+    
+    // Set the execution start time as the current timestamp
+    high_priority_pcb.execution_starttime = timestamp;
+
+    // Set the execution end time as the sum of the current timestamp and the remaining burst time
+    high_priority_pcb.execution_endtime = timestamp + high_priority_pcb.remaining_bursttime;
+    
+    // Shift remaining PCBs in the ready queue
+    for (int i = high_priority_index; i < *queue_cnt - 1; i++) {
+        ready_queue[i] = ready_queue[i + 1];
+    }
+    
+    // Decrement queue count
+    (*queue_cnt)--;
+
+    return high_priority_pcb;
 }
+
 
 
 struct PCB handle_process_arrival_srtp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, struct PCB current_process, struct PCB new_process, int timestamp) {
