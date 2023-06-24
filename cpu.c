@@ -38,10 +38,6 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
 }
 
 
-
-
-
-
 struct PCB handle_process_completion_pp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp) {
     struct PCB next_process;
 
@@ -507,30 +503,23 @@ int count_page_faults_lfu(struct PTE page_table[TABLEMAX], int table_cnt, int re
 
 
 struct PCB handle_process_arrival_rr(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, struct PCB current_process, struct PCB new_process, int timestamp, int time_quantum) {
-    // If a new process arrives, it will be added to the end of the ready queue
-    ready_queue[*queue_cnt] = new_process;
-    (*queue_cnt)++; // increment the queue count
+    new_process.remaining_bursttime = new_process.total_bursttime;
 
-    // If the current process has exceeded its time quantum, it should be added to the end of the queue
-    if (timestamp - current_process.execution_starttime >= time_quantum) {
-        ready_queue[*queue_cnt] = current_process;
-        (*queue_cnt)++; // increment the queue count
-
-        // The new current process is the one that was at the head of the queue
-        struct PCB next_process = ready_queue[0];
-
-        // remove the process from the head of the queue and shift all other processes
-        for (int i = 0; i < *queue_cnt - 1; i++) {
-            ready_queue[i] = ready_queue[i + 1];
-        }
-
-        (*queue_cnt)--; // decrement the queue count
-        return next_process;
+    // If there is no currently-running process (i.e., the third argument is the NULLPCB)
+    if (current_process.process_id == 0) {
+        new_process.execution_starttime = timestamp;
+        new_process.execution_endtime = timestamp + ((new_process.total_bursttime < time_quantum) ? new_process.total_bursttime : time_quantum);
+        return new_process;
+    } else {
+        // If there is a currently-running process
+        new_process.execution_starttime = 0;
+        new_process.execution_endtime = 0;
+        ready_queue[*queue_cnt] = new_process;
+        (*queue_cnt)++;
+        return current_process;
     }
-
-    // If the current process has not exhausted its quantum, it will continue to execute
-    return current_process;
 }
+
 
 struct PCB handle_process_completion_rr(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp, int time_quantum) {
     struct PCB next_process;
