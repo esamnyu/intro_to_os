@@ -542,44 +542,47 @@ struct PCB handle_process_arrival_rr(struct PCB ready_queue[QUEUEMAX], int *queu
 
 
 struct PCB handle_process_completion_rr(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, int timestamp, int time_quantum) {
-    struct PCB next_process;
-
-    if (*queue_cnt != 0) { // if there are still some processes in ready_queue
-        for (int i = 0; i < *queue_cnt; i++) {
-            // Check if a process in ready queue has the same execution_endtime as the timestamp
-            if (ready_queue[i].execution_endtime == timestamp) {
-                // Handle the case where remaining_bursttime is greater than time_quantum
-                if (ready_queue[i].remaining_bursttime > time_quantum) {
-                    ready_queue[i].execution_starttime = timestamp;
-                    ready_queue[i].execution_endtime = timestamp + time_quantum;
-                    ready_queue[i].remaining_bursttime -= time_quantum;
-                } else { // remove the process from the queue
-                    // Shift all the processes after the current process
-                    for (int j = i; j < *queue_cnt - 1; j++) {
-                        ready_queue[j] = ready_queue[j+1];
-                    }
-                    (*queue_cnt)--; // Decrease the queue count
-                }
-                break;
-            }
-        }
-
-        // If there is still a process in the ready queue, the next process is the first process
-        if (*queue_cnt > 0) {
-            next_process = ready_queue[0];
-        } else {
-            next_process.process_id = 0; // no processes are available in ready_queue, return a null process
-        }
-    } else {
-        next_process.process_id = 0; // no processes are available in ready_queue, return a null process
+    // If the ready queue is empty, return NULLPCB
+    if (*queue_cnt == 0) {
+        return NULLPCB;
     }
 
-    // Set up the next_process's start and end execution time
-    next_process.execution_starttime = timestamp;
-    next_process.execution_endtime = timestamp + (next_process.remaining_bursttime > time_quantum ? time_quantum : next_process.remaining_bursttime);
+    // Initialize earliest arrival time variable and index of the earliest arrival process
+    int earliest_arrival = INT_MAX;
+    int earliest_arrival_index = 0;
 
-    return next_process;
+    // Find the PCB of the process in the ready queue with the earliest arrival time
+    for (int i = 0; i < *queue_cnt; i++) {
+        if (ready_queue[i].arrival_timestamp < earliest_arrival) {
+            earliest_arrival = ready_queue[i].arrival_timestamp;
+            earliest_arrival_index = i;
+        }
+    }
+
+    // Save the earliest arrival PCB
+    struct PCB earliest_arrival_pcb = ready_queue[earliest_arrival_index];
+    
+    // Set the execution start time as the current timestamp
+    earliest_arrival_pcb.execution_starttime = timestamp;
+
+    // Set the execution end time as the sum of the current timestamp and the smaller of the time quantum and the remaining burst time
+    if (earliest_arrival_pcb.remaining_bursttime < time_quantum) {
+        earliest_arrival_pcb.execution_endtime = timestamp + earliest_arrival_pcb.remaining_bursttime;
+    } else {
+        earliest_arrival_pcb.execution_endtime = timestamp + time_quantum;
+    }
+    
+    // Shift remaining PCBs in the ready queue
+    for (int i = earliest_arrival_index; i < *queue_cnt - 1; i++) {
+        ready_queue[i] = ready_queue[i + 1];
+    }
+    
+    // Decrement queue count
+    (*queue_cnt)--;
+
+    return earliest_arrival_pcb;
 }
+
 
 // int main() {
 //     struct PCB ready_queue[QUEUEMAX];
