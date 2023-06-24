@@ -11,16 +11,20 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
     if (current_process.process_id == 0) { // Assuming process_id = 0 means it's the NULLPCB
         new_process.execution_starttime = timestamp;
         new_process.execution_endtime = timestamp + new_process.total_bursttime;
+        ready_queue[*queue_cnt] = new_process;
+        (*queue_cnt)++;
         return new_process;
     } else {
         if (new_process.process_priority < current_process.process_priority) { // New process preempts the current one
             current_process.remaining_bursttime -= timestamp - current_process.execution_starttime;
+            if (current_process.remaining_bursttime < 0) {
+                current_process.remaining_bursttime = 0;
+            }
             current_process.execution_endtime = timestamp; // The current process is preempted now, so its endtime should be now
             ready_queue[*queue_cnt] = current_process; // current_process is added back to ready_queue
             (*queue_cnt)++;
             new_process.execution_starttime = timestamp;
             new_process.execution_endtime = timestamp + new_process.total_bursttime;
-            // Return new_process as the next process to execute
             return new_process;
         } else { // Current process continues
             new_process.execution_starttime = 0; // As the new process is not starting execution now, its starttime should be 0
