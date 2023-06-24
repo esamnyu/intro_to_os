@@ -25,8 +25,6 @@ struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queu
             (*queue_cnt)++;
             new_process.execution_starttime = timestamp;
             new_process.execution_endtime = timestamp + new_process.total_bursttime;
-            ready_queue[*queue_cnt] = new_process;
-            (*queue_cnt)++;
             return new_process;
         } else {
             // If the new process has equal or lower priority
@@ -574,6 +572,42 @@ struct PCB handle_process_completion_rr(struct PCB ready_queue[QUEUEMAX], int *q
     return next_process;
 }
 
+
+// int main() {
+//     struct PCB ready_queue[QUEUEMAX]; // Assuming QUEUEMAX is a defined constant - This is defined in the header file oslabs.h 
+//     int queue_cnt = 0;
+//     struct PCB current_process, new_process;
+
+//     // Setting up the current process
+//     current_process.process_id = 1;
+//     current_process.arrival_timestamp = 1;
+//     current_process.total_bursttime = 4;
+//     current_process.execution_starttime = 1;
+//     current_process.execution_endtime = 0; // Endtime should be 0 for a running process
+//     current_process.remaining_bursttime = 3;
+//     current_process.process_priority = 8;
+
+//     // Setting up the new process
+//     new_process.process_id = 2;
+//     new_process.arrival_timestamp = 2;
+//     new_process.total_bursttime = 3;
+//     new_process.execution_starttime = 0;
+//     new_process.execution_endtime = 0; // Endtime should be 0 for a new process
+//     new_process.remaining_bursttime = 3;
+//     new_process.process_priority = 6; // Higher priority than current_process
+
+//     // Calling the function to test
+//     struct PCB next_process = handle_process_arrival_pp(ready_queue, &queue_cnt, current_process, new_process, 2);
+
+//     // Here you would typically check if the ready_queue and queue_cnt are as expected
+//     if(queue_cnt == 1) {
+//         printf("Passed All Tests\n");
+//     } else {
+//         printf("Expecting test 1 Ready Queue Count value of 1 and received %d\n", queue_cnt);
+//     }
+
+//     return 0;
+// }
 
 // int main() {
 //     struct PCB ready_queue[QUEUEMAX];
