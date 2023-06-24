@@ -6,32 +6,41 @@
 const struct PCB NULLPCB = {0, 0, 0, 0, 0, 0, 0};
 
 struct PCB handle_process_arrival_pp(struct PCB ready_queue[QUEUEMAX], int *queue_cnt, struct PCB current_process, struct PCB new_process, int timestamp) {
+    // Set the remaining burst time of the new process to its total burst time
     new_process.remaining_bursttime = new_process.total_bursttime;
 
-    if (current_process.process_id == 0) { // Assuming process_id = 0 means it's the NULLPCB
+    // Check if there is no currently running process
+    if (current_process.process_id == 0) {
+        // Set the start time, end time of the new process and add it to the ready queue
         new_process.execution_starttime = timestamp;
         new_process.execution_endtime = timestamp + new_process.total_bursttime;
         ready_queue[*queue_cnt] = new_process;
         (*queue_cnt)++;
         return new_process;
-    } else {
-        if (new_process.process_priority < current_process.process_priority) { // New process preempts the current one
+    } 
+    // If there is a currently running process, compare priorities
+    else {
+        if (new_process.process_priority < current_process.process_priority) {
+            // New process has higher priority, so preempt the current process
             current_process.remaining_bursttime -= timestamp - current_process.execution_starttime;
-            if (current_process.remaining_bursttime < 0) {
-                current_process.remaining_bursttime = 0;
-            }
-            current_process.execution_endtime = timestamp; // The current process is preempted now, so its endtime should be now
-            ready_queue[*queue_cnt] = current_process; // current_process is added back to ready_queue
+            current_process.execution_endtime = 0;  // Mark end time as 0 for the current process
+            ready_queue[*queue_cnt] = current_process;  // Add current process back to ready queue
             (*queue_cnt)++;
+
+            // Set the start time, end time of the new process and add it to the ready queue
             new_process.execution_starttime = timestamp;
             new_process.execution_endtime = timestamp + new_process.total_bursttime;
-            return new_process;
-        } else { // Current process continues
-            new_process.execution_starttime = 0; // As the new process is not starting execution now, its starttime should be 0
-            new_process.execution_endtime = 0; // As the new process is not ending execution now, its endtime should be 0
             ready_queue[*queue_cnt] = new_process;
             (*queue_cnt)++;
-            return current_process; // current_process continues its execution
+            return new_process;
+        } 
+        else {
+            // Current process has higher or equal priority, so continue running current process
+            new_process.execution_starttime = 0;
+            new_process.execution_endtime = 0;
+            ready_queue[*queue_cnt] = new_process;  // Add new process to ready queue
+            (*queue_cnt)++;
+            return current_process;
         }
     }
 }
