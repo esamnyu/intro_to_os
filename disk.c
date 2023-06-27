@@ -125,7 +125,6 @@ struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], in
             }
         }
     }
-    
     // No changes to the function from this point
 }
 
