@@ -50,8 +50,6 @@ struct RCB handle_request_arrival_sstf(struct RCB request_queue[QUEUEMAX], int *
     }
 }
 
-#include "oslabs.h"
-
 struct RCB handle_request_completion_sstf(struct RCB request_queue[QUEUEMAX], int *queue_cnt, int current_cylinder)
 {
     if(*queue_cnt == 0) // if the request queue is empty
