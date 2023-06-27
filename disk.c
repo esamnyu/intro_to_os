@@ -129,7 +129,11 @@ struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], in
 
     if(*queue_cnt == 0) {
         struct RCB nullRCB;
-        nullRCB.request_id = -1;  // assign some kind of flag value to indicate this is a null RCB
+        nullRCB.request_id = 0;
+        nullRCB.arrival_timestamp = 0;
+        nullRCB.cylinder = 0;
+        nullRCB.address = 0;
+        nullRCB.process_id = 0;
         return nullRCB;
     }
 
