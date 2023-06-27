@@ -88,8 +88,6 @@ struct RCB handle_request_completion_sstf(struct RCB request_queue[QUEUEMAX], in
     }
 }
 
-#include "oslabs.h"
-
 struct RCB handle_request_arrival_look(struct RCB request_queue[QUEUEMAX],int *queue_cnt, struct RCB current_request, struct RCB new_request, int timestamp)
 {
     if(current_request.request_id == 0)  // If the disk is free (current_request is NULLRCB)
