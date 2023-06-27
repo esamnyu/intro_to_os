@@ -101,50 +101,52 @@ struct RCB handle_request_arrival_look(struct RCB request_queue[QUEUEMAX],int *q
     }
 }
 
-struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], int *queue_cnt, int current_cylinder, int scan_direction)
-{
-    if (*queue_cnt == 0)  // If the request queue is empty
-    {
-        struct RCB NULLRCB = {0, 0, 0, 0, 0};  
-        return NULLRCB;  // Return NULLRCB to indicate that there is no request to service next
+sstruct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], int *queue_cnt, int current_cylinder, int scan_direction) {
+    if(*queue_cnt == 0) {
+        struct RCB nullRCB;
+        nullRCB.request_id = -1;  // assign some kind of flag value to indicate this is a null RCB
+        return nullRCB;
     }
-    else
-    {
-        int target_index;
-        int minimum_difference = INT_MAX;  // Initialize minimum_difference with the maximum possible integer
-        int earliest_arrival_time = INT_MAX;  // Initialize earliest_arrival_time with the maximum possible integer
 
-        for (int i = 0; i < *queue_cnt; i++)
-        {
-            int cylinder_difference = abs(current_cylinder - request_queue[i].cylinder);
-
-            // If the request is in the same direction as the scan direction, or if there is no request in the scan direction
-            if ((scan_direction == 1 && request_queue[i].cylinder >= current_cylinder) || 
-                (scan_direction == 0 && request_queue[i].cylinder <= current_cylinder) ||
-                (scan_direction == 1 && minimum_difference > current_cylinder) ||
-                (scan_direction == 0 && minimum_difference > QUEUEMAX - current_cylinder))
-            {
-                if (cylinder_difference < minimum_difference || 
-                    (cylinder_difference == minimum_difference && request_queue[i].arrival_timestamp < earliest_arrival_time))
-                {
-                    // If the current request has a closer cylinder or has the same cylinder but an earlier arrival time
-                    target_index = i;  // Pick this request
-                    minimum_difference = cylinder_difference;
-                    earliest_arrival_time = request_queue[i].arrival_timestamp;
-                }
+    struct RCB nextRCB;
+    int found = -1;
+    if(scan_direction == 1) { // moving up
+        for(int i = 0; i < *queue_cnt; i++) {
+            if(request_queue[i].cylinder >= current_cylinder) {
+                nextRCB = request_queue[i];
+                found = i;
+                break;
             }
         }
+    } else if(scan_direction == 0) { // moving down
+        for(int i = *queue_cnt - 1; i >= 0; i--) {
+            if(request_queue[i].cylinder <= current_cylinder) {
+                nextRCB = request_queue[i];
+                found = i;
+                break;
+            }
+        }
+    }
 
-        struct RCB next_request = request_queue[target_index];  // Store the selected request
-
-        // Remove the selected request from the request queue
-        for (int i = target_index; i < *queue_cnt - 1; i++)
-        {
+    if(found != -1) { // If found, shift elements left to fill the gap
+        for(int i = found; i < *queue_cnt - 1; i++) {
             request_queue[i] = request_queue[i + 1];
         }
-        (*queue_cnt)--;  // Decrease the count of requests in the queue
-
-        return next_request;  // Return the selected request
+        (*queue_cnt)--; // decrease queue count as one request is handled
+    } else { // If not found, consider the direction
+        if(scan_direction == 1) {
+            nextRCB = request_queue[0];
+            for(int i = 0; i < *queue_cnt - 1; i++) {
+                request_queue[i] = request_queue[i + 1];
+            }
+            (*queue_cnt)--;
+        } else if(scan_direction == 0) {
+            nextRCB = request_queue[*queue_cnt - 1];
+            (*queue_cnt)--;
+        }
     }
+
+    return nextRCB;
 }
+
 
