@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 struct RCB handle_request_arrival_fcfs(struct RCB request_queue[QUEUEMAX], int *queue_cnt, struct RCB current_request, struct RCB new_request, int timestamp)
 {
@@ -152,56 +153,27 @@ struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], in
 
 
 // int main() {
-//     // Test Case 1
-//     {
-//         struct RCB request_queue[QUEUEMAX] = {
-//             {.request_id = 1, .arrival_timestamp = 1, .cylinder = 1, .address = 1, .process_id = 1},
-//             {.request_id = 2, .arrival_timestamp = 2, .cylinder = 2, .address = 2, .process_id = 2},
-//             {.request_id = 3, .arrival_timestamp = 3, .cylinder = 3, .address = 3, .process_id = 3}
-//         };
-//         int queue_cnt = 3;
-//         int current_cylinder = 1;
-//         int scan_direction = 1;
+//     // Initialize the request queue and the counter
+//     struct RCB request_queue[QUEUEMAX];
+//     int queue_cnt = 0;
 
-//         struct RCB result = handle_request_completion_look(request_queue, &queue_cnt, current_cylinder, scan_direction);
+//     // Define a test case
+//     struct RCB test_request = {1, 52, 58, 58, 1};
 
-//         printf("Test Case 1 - Expected request_id = 1, actual request_id = %d\n", result.request_id);
-//         printf("Expected remaining queue size = 2, actual queue size = %d\n", queue_cnt);
-//     }
+//     // Add the test request to the queue
+//     request_queue[queue_cnt++] = test_request;
 
-//     // Test Case 2
-//     {
-//         struct RCB request_queue[QUEUEMAX] = {
-//             {.request_id = 1, .arrival_timestamp = 1, .cylinder = 3, .address = 3, .process_id = 1},
-//             {.request_id = 2, .arrival_timestamp = 2, .cylinder = 2, .address = 2, .process_id = 2},
-//             {.request_id = 3, .arrival_timestamp = 3, .cylinder = 1, .address = 1, .process_id = 3}
-//         };
-//         int queue_cnt = 3;
-//         int current_cylinder = 3;
-//         int scan_direction = 0;
+//     // Run the function on the queue
+//     struct RCB result = handle_request_completion_look(request_queue, &queue_cnt, 52, 1);
 
-//         struct RCB result = handle_request_completion_look(request_queue, &queue_cnt, current_cylinder, scan_direction);
+//     // Check the correctness of the function
+//     assert(result.request_id == test_request.request_id);
+//     assert(result.arrival_timestamp == test_request.arrival_timestamp);
+//     assert(result.cylinder == test_request.cylinder);
+//     assert(result.address == test_request.address);
+//     assert(result.process_id == test_request.process_id);
 
-//         printf("Test Case 2 - Expected request_id = 1, actual request_id = %d\n", result.request_id);
-//         printf("Expected remaining queue size = 2, actual queue size = %d\n", queue_cnt);
-//     }
-
-//     // Test Case 3
-//     {
-//         struct RCB request_queue[QUEUEMAX] = {
-//             {.request_id = 1, .arrival_timestamp = 3, .cylinder = 2, .address = 2, .process_id = 1},
-//             {.request_id = 2, .arrival_timestamp = 2, .cylinder = 2, .address = 2, .process_id = 2},
-//             {.request_id = 3, .arrival_timestamp = 1, .cylinder = 2, .address = 2, .process_id = 3}
-//         };
-//         int queue_cnt = 3;
-//         int current_cylinder = 2;
-//         int scan_direction = 1;
-
-//         struct RCB result = handle_request_completion_look(request_queue, &queue_cnt, current_cylinder, scan_direction);
-
-//         printf("Test Case 3 - Expected request_id = 3, actual request_id = %d\n", result.request_id);
-//         printf("Expected remaining queue size = 2, actual queue size = %d\n", queue_cnt);
-//     }
+//     printf("All tests passed successfully.\n");
 
 //     return 0;
 // }
