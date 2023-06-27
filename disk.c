@@ -101,7 +101,20 @@ struct RCB handle_request_arrival_look(struct RCB request_queue[QUEUEMAX],int *q
     }
 }
 
+void sort_queue(struct RCB request_queue[QUEUEMAX], int *queue_cnt) {
+    for(int i = 0; i < *queue_cnt - 1; i++) {
+        for(int j = 0; j < *queue_cnt - i - 1; j++) {
+            if(request_queue[j].cylinder > request_queue[j + 1].cylinder) {
+                struct RCB temp = request_queue[j];
+                request_queue[j] = request_queue[j + 1];
+                request_queue[j + 1] = temp;
+            }
+        }
+    }
+}
+
 struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], int *queue_cnt, int current_cylinder, int scan_direction) {
+    sort_queue(request_queue, queue_cnt);
     if(*queue_cnt == 0) {
         struct RCB nullRCB;
         nullRCB.request_id = -1;  // assign some kind of flag value to indicate this is a null RCB
