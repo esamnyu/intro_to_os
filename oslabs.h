@@ -6,6 +6,7 @@
 #define MAX( a, b ) ( ( a > b) ? a : b ) 
 #define MIN( a, b ) ( ( a > b) ? b : a ) 
 
+
 struct RCB {
         int request_id;
         int arrival_timestamp;
@@ -23,6 +24,7 @@ struct PCB {
         int remaining_bursttime;
         int process_priority;
     };
+
 
 struct MEMORY_BLOCK {
         int start_address;

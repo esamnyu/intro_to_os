@@ -1,4 +1,7 @@
 #include "oslabs.h"
+#include <limits.h>
+#include <stdlib.h>
+#include<stdio.h>
 
 struct RCB handle_request_arrival_fcfs(struct RCB request_queue[QUEUEMAX], int *queue_cnt, struct RCB current_request, struct RCB new_request, int timestamp)
 {
