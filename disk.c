@@ -107,8 +107,21 @@ struct RCB handle_request_arrival_look(struct RCB request_queue[QUEUEMAX],int *q
 int compare(const void * a, const void * b) {
     struct RCB *rcbA = (struct RCB *)a;
     struct RCB *rcbB = (struct RCB *)b;
-    return rcbA->cylinder - rcbB->cylinder;
+
+    // First, compare by cylinder
+    if(rcbA->cylinder != rcbB->cylinder) {
+        return rcbA->cylinder - rcbB->cylinder;
+    }
+
+    // If cylinders are same, then compare by arrival_timestamp
+    if(rcbA->arrival_timestamp != rcbB->arrival_timestamp) {
+        return rcbA->arrival_timestamp - rcbB->arrival_timestamp;
+    }
+
+    // If arrival_timestamp are also same, then compare by request_id
+    return rcbA->request_id - rcbB->request_id;
 }
+
 
 struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], int *queue_cnt, int current_cylinder, int scan_direction) {
     // Sort the request_queue based on cylinder number
@@ -158,6 +171,8 @@ struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], in
 
     return nextRCB;
 }
+
+
 
 // int main() {
 //     // Initialize the request queue and the counter
