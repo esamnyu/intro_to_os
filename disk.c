@@ -101,7 +101,7 @@ struct RCB handle_request_arrival_look(struct RCB request_queue[QUEUEMAX],int *q
     }
 }
 
-sstruct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], int *queue_cnt, int current_cylinder, int scan_direction) {
+struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], int *queue_cnt, int current_cylinder, int scan_direction) {
     if(*queue_cnt == 0) {
         struct RCB nullRCB;
         nullRCB.request_id = -1;  // assign some kind of flag value to indicate this is a null RCB
