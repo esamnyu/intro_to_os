@@ -103,7 +103,17 @@ struct RCB handle_request_arrival_look(struct RCB request_queue[QUEUEMAX],int *q
     }
 }
 
+// Helper function for comparing two RCB structures (for qsort)
+int compare(const void * a, const void * b) {
+    struct RCB *rcbA = (struct RCB *)a;
+    struct RCB *rcbB = (struct RCB *)b;
+    return rcbA->cylinder - rcbB->cylinder;
+}
+
 struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], int *queue_cnt, int current_cylinder, int scan_direction) {
+    // Sort the request_queue based on cylinder number
+    qsort(request_queue, *queue_cnt, sizeof(struct RCB), compare);
+
     if(*queue_cnt == 0) {
         struct RCB nullRCB;
         nullRCB.request_id = -1;  // assign some kind of flag value to indicate this is a null RCB
@@ -112,6 +122,7 @@ struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], in
 
     struct RCB nextRCB;
     int found = -1;
+
     if(scan_direction == 1) { // moving up
         for(int i = 0; i < *queue_cnt; i++) {
             if(request_queue[i].cylinder >= current_cylinder) {
@@ -120,7 +131,7 @@ struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], in
                 break;
             }
         }
-    } else if(scan_direction == 0) { // moving down
+    } else { // moving down
         for(int i = *queue_cnt - 1; i >= 0; i--) {
             if(request_queue[i].cylinder <= current_cylinder) {
                 nextRCB = request_queue[i];
@@ -134,23 +145,19 @@ struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], in
         for(int i = found; i < *queue_cnt - 1; i++) {
             request_queue[i] = request_queue[i + 1];
         }
-        (*queue_cnt)--; // decrease queue count as one request is handled
-    } else { // If not found, consider the direction
+        (*queue_cnt)--;
+    } else { // If not found, switch direction
+        scan_direction = 1 - scan_direction;
         if(scan_direction == 1) {
-            nextRCB = request_queue[0];
-            for(int i = 0; i < *queue_cnt - 1; i++) {
-                request_queue[i] = request_queue[i + 1];
-            }
-            (*queue_cnt)--;
-        } else if(scan_direction == 0) {
-            nextRCB = request_queue[*queue_cnt - 1];
-            (*queue_cnt)--;
+            nextRCB = request_queue[0]; // smallest cylinder
+        } else {
+            nextRCB = request_queue[*queue_cnt - 1]; // largest cylinder
         }
+        (*queue_cnt)--;
     }
 
     return nextRCB;
 }
-
 
 // int main() {
 //     // Initialize the request queue and the counter
