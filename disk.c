@@ -124,7 +124,6 @@ int compare(const void * a, const void * b) {
 
 
 struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], int *queue_cnt, int current_cylinder, int scan_direction) {
-    // Sort the request_queue based on cylinder number
     qsort(request_queue, *queue_cnt, sizeof(struct RCB), compare);
 
     if(*queue_cnt == 0) {
@@ -132,45 +131,51 @@ struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], in
         return nullRCB;
     }
 
-    struct RCB nextRCB = {0, INT_MAX, INT_MAX, INT_MAX, INT_MAX}; // Initialize with maximum values
-    int found = -1;
-
-    if(scan_direction == 1) { // moving up
-        for(int i = 0; i < *queue_cnt; i++) {
-            if(request_queue[i].cylinder >= current_cylinder &&
-               (request_queue[i].cylinder < nextRCB.cylinder || 
-               (request_queue[i].cylinder == nextRCB.cylinder && 
-                request_queue[i].arrival_timestamp < nextRCB.arrival_timestamp))) {
-                nextRCB = request_queue[i];
-                found = i;
+    int closest_index = -1;
+    int distance = INT_MAX;
+    
+    for(int i = 0; i < *queue_cnt; i++) {
+        if(scan_direction == 1 && request_queue[i].cylinder >= current_cylinder) { //moving up
+            int temp_distance = request_queue[i].cylinder - current_cylinder;
+            if(temp_distance < distance) {
+                distance = temp_distance;
+                closest_index = i;
             }
-        }
-    } else { // moving down
-        for(int i = *queue_cnt - 1; i >= 0; i--) {
-            if(request_queue[i].cylinder <= current_cylinder &&
-               (request_queue[i].cylinder > nextRCB.cylinder || 
-               (request_queue[i].cylinder == nextRCB.cylinder && 
-                request_queue[i].arrival_timestamp < nextRCB.arrival_timestamp))) {
-                nextRCB = request_queue[i];
-                found = i;
+        } else if(scan_direction == 0 && request_queue[i].cylinder <= current_cylinder) { //moving down
+            int temp_distance = current_cylinder - request_queue[i].cylinder;
+            if(temp_distance < distance) {
+                distance = temp_distance;
+                closest_index = i;
             }
         }
     }
 
-    if(found != -1) { // If found, shift elements left to fill the gap
-        for(int i = found; i < *queue_cnt - 1; i++) {
-            request_queue[i] = request_queue[i + 1];
-        }
-        (*queue_cnt)--;
-    } else { // If not found, switch direction
+    if(closest_index == -1) { // If no request in the current direction, switch direction
         scan_direction = 1 - scan_direction;
-        if(scan_direction == 1) {
-            nextRCB = request_queue[0]; // smallest cylinder
-        } else {
-            nextRCB = request_queue[*queue_cnt - 1]; // largest cylinder
+        distance = INT_MAX;
+        for(int i = 0; i < *queue_cnt; i++) {
+            if(scan_direction == 1 && request_queue[i].cylinder >= current_cylinder) { //moving up
+                int temp_distance = request_queue[i].cylinder - current_cylinder;
+                if(temp_distance < distance) {
+                    distance = temp_distance;
+                    closest_index = i;
+                }
+            } else if(scan_direction == 0 && request_queue[i].cylinder <= current_cylinder) { //moving down
+                int temp_distance = current_cylinder - request_queue[i].cylinder;
+                if(temp_distance < distance) {
+                    distance = temp_distance;
+                    closest_index = i;
+                }
+            }
         }
-        (*queue_cnt)--;
     }
+
+    struct RCB nextRCB = request_queue[closest_index];
+
+    for(int i = closest_index; i < *queue_cnt - 1; i++) {
+        request_queue[i] = request_queue[i + 1];
+    }
+    (*queue_cnt)--;
 
     return nextRCB;
 }
