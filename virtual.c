@@ -1,4 +1,5 @@
 #include "oslabs.h"
+#include <limits.h>
 
 int process_page_access_fifo(struct PTE page_table[TABLEMAX], int *table_cnt, int page_number, int frame_pool[POOLMAX], int *frame_cnt, int current_timestamp) {
     // Check if page is in memory
