@@ -128,32 +128,31 @@ struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], in
     qsort(request_queue, *queue_cnt, sizeof(struct RCB), compare);
 
     if(*queue_cnt == 0) {
-        struct RCB nullRCB;
-        nullRCB.request_id = 0;
-        nullRCB.arrival_timestamp = 0;
-        nullRCB.cylinder = 0;
-        nullRCB.address = 0;
-        nullRCB.process_id = 0;
+        struct RCB nullRCB = {0, 0, 0, 0, 0};
         return nullRCB;
     }
 
-    struct RCB nextRCB;
+    struct RCB nextRCB = {0, INT_MAX, INT_MAX, INT_MAX, INT_MAX}; // Initialize with maximum values
     int found = -1;
 
     if(scan_direction == 1) { // moving up
         for(int i = 0; i < *queue_cnt; i++) {
-            if(request_queue[i].cylinder >= current_cylinder) {
+            if(request_queue[i].cylinder >= current_cylinder &&
+               (request_queue[i].cylinder < nextRCB.cylinder || 
+               (request_queue[i].cylinder == nextRCB.cylinder && 
+                request_queue[i].arrival_timestamp < nextRCB.arrival_timestamp))) {
                 nextRCB = request_queue[i];
                 found = i;
-                break;
             }
         }
     } else { // moving down
         for(int i = *queue_cnt - 1; i >= 0; i--) {
-            if(request_queue[i].cylinder <= current_cylinder) {
+            if(request_queue[i].cylinder <= current_cylinder &&
+               (request_queue[i].cylinder > nextRCB.cylinder || 
+               (request_queue[i].cylinder == nextRCB.cylinder && 
+                request_queue[i].arrival_timestamp < nextRCB.arrival_timestamp))) {
                 nextRCB = request_queue[i];
                 found = i;
-                break;
             }
         }
     }
@@ -175,6 +174,7 @@ struct RCB handle_request_completion_look(struct RCB request_queue[QUEUEMAX], in
 
     return nextRCB;
 }
+
 
 
 
