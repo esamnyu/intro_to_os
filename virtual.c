@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdbool.h>
 
 // Modify process_page_access_fifo to return boolean
 bool process_page_access_fifo(struct PTE page_table[TABLEMAX], int *table_cnt, int page_number, int frame_pool[POOLMAX], int *frame_cnt, int current_timestamp) {
