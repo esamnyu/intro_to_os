@@ -288,37 +288,37 @@ int count_page_faults_lfu(struct PTE page_table[TABLEMAX], int table_cnt, int re
     return faults;
 }
 
-int main() {
-    // Initialize page table
-    struct PTE page_table[TABLEMAX];
-    int table_cnt = TABLEMAX;
+// int main() {
+//     // Initialize page table
+//     struct PTE page_table[TABLEMAX];
+//     int table_cnt = TABLEMAX;
 
-    // Assume all pages are initially not in memory
-    for (int i = 0; i < table_cnt; i++) {
-        page_table[i].is_valid = 0;
-        page_table[i].frame_number = -1;
-        page_table[i].arrival_timestamp = -1;
-        page_table[i].last_access_timestamp = -1;
-        page_table[i].reference_count = -1;
-    }
+//     // Assume all pages are initially not in memory
+//     for (int i = 0; i < table_cnt; i++) {
+//         page_table[i].is_valid = 0;
+//         page_table[i].frame_number = -1;
+//         page_table[i].arrival_timestamp = -1;
+//         page_table[i].last_access_timestamp = -1;
+//         page_table[i].reference_count = -1;
+//     }
 
-    // Initialize frame pool with some frames
-    int frame_pool[POOLMAX] = {10, 20, 30, 40};
-    int frame_cnt = 4;
+//     // Initialize frame pool with some frames
+//     int frame_pool[POOLMAX] = {10, 20, 30, 40};
+//     int frame_cnt = 4;
 
-    // Reference string and count
-    int reference_string[REFERENCEMAX] = {1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5};
-    int reference_cnt = 12;
+//     // Reference string and count
+//     int reference_string[REFERENCEMAX] = {1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5};
+//     int reference_cnt = 12;
 
-    // Run count_page_faults_fifo
-    int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
+//     // Run count_page_faults_fifo
+//     int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
 
-    // Check the result
-    printf("Page faults: %d\n", faults);
-    assert(faults == 8);
+//     // Check the result
+//     printf("Page faults: %d\n", faults);
+//     assert(faults == 8);
 
-    return 0;
-}
+//     return 0;
+// }
 // The assert statement will abort the program if the number of faults is not 8, printing an error message similar to the one you're seeing.
 
 // Please replace the reference_string and reference_cnt with the actual sequence of page accesses and length used in your test case, as I don't know what specific sequence causes the discrepancy between the expected and actual number of page faults.
