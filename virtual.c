@@ -186,8 +186,6 @@ int process_page_access_lru(struct PTE page_table[TABLEMAX], int *table_cnt, int
     }
 }
 
-#include <limits.h>
-
 int count_page_faults_lru(struct PTE page_table[TABLEMAX], int table_cnt, int reference_string[REFERENCEMAX], int reference_cnt, int frame_pool[POOLMAX], int frame_cnt) {
     int faults = 0;
     int timestamp = 1;
