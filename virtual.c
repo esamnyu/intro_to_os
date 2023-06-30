@@ -64,6 +64,25 @@ int process_page_access_fifo(struct PTE page_table[TABLEMAX], int *table_cnt, in
     return -1; // Indicate a page fault occurred as a page replacement was needed
 }
 
+int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int reference_string[REFERENCEMAX], int reference_cnt, int frame_pool[POOLMAX], int frame_cnt) {
+    int faults = 0;
+    int current_timestamp = 1;
+
+    for (int i = 0; i < reference_cnt; i++) {
+        int page_number = reference_string[i];
+
+        bool page_fault_occurred = process_page_and_check_fault(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, current_timestamp);
+
+        if (page_fault_occurred) {
+            faults++;
+        }
+
+        current_timestamp++;
+    }
+
+    return faults;
+}
+
 
 int process_page_access_lfu(struct PTE page_table[TABLEMAX], int *table_cnt, int page_number, int frame_pool[POOLMAX], int *frame_cnt, int current_timestamp){
     
