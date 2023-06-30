@@ -4,33 +4,22 @@
 #include <assert.h>
 #include <stdbool.h>
 
-// Modify process_page_access_fifo to return boolean
-bool process_page_access_fifo(struct PTE page_table[TABLEMAX], int *table_cnt, int page_number, int frame_pool[POOLMAX], int *frame_cnt, int current_timestamp) {
-    // Check if page is in memory
-    if (page_table[page_number].is_valid) {
-        page_table[page_number].last_access_timestamp = current_timestamp;
-        page_table[page_number].reference_count++;
-        return false; // No page fault occurred as the page is already in memory
+// New helper function
+bool process_page_and_check_fault(struct PTE page_table[TABLEMAX], int *table_cnt, int page_number, int frame_pool[POOLMAX], int *frame_cnt, int current_timestamp) {
+    // Previous frame count before processing the page
+    int prev_frame_count = *frame_cnt;
+
+    // Process the page access
+    process_page_access_fifo(page_table, table_cnt, page_number, frame_pool, frame_cnt, current_timestamp);
+
+    // If frame count decreased, it means a page fault occurred
+    if (*frame_cnt < prev_frame_count) {
+        return true;
     }
 
-    // If not, check if there are any free frames
-    if (*frame_cnt > 0) {
-        int frame = frame_pool[--(*frame_cnt)];  // Get and remove frame from frame pool
-        page_table[page_number].is_valid = 1;
-        page_table[page_number].frame_number = frame;
-        page_table[page_number].arrival_timestamp = current_timestamp;
-        page_table[page_number].last_access_timestamp = current_timestamp;
-        page_table[page_number].reference_count = 1;
-        printf("Page fault (free frame used): page = %d, frame = %d, timestamp = %d\n", page_number, frame, current_timestamp);
-        return true; // Page fault occurred as the page was not in memory and a free frame was used
-    }
-
-    // If not, perform page replacement using FIFO
-    // Rest of your code...
-    return true; // Page fault occurred as a page was replaced
+    return false;
 }
 
-// Modify count_page_faults_fifo to count page faults based on process_page_access_fifo's return value
 int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int reference_string[REFERENCEMAX], int reference_cnt, int frame_pool[POOLMAX], int frame_cnt) {
     int page_faults = 0;
     int current_timestamp = 1;
@@ -38,8 +27,8 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int r
     for (int i = 0; i < reference_cnt; i++) {
         int page_number = reference_string[i];
 
-        // If process_page_access_fifo returns true, a page fault occurred
-        if (process_page_access_fifo(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, current_timestamp)) {
+        // If process_page_and_check_fault returns true, a page fault occurred
+        if (process_page_and_check_fault(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, current_timestamp)) {
             page_faults++;
         }
 
