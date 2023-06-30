@@ -126,48 +126,48 @@ int process_page_access_lfu(struct PTE page_table[TABLEMAX],int *table_cnt, int 
 }
 
 
-// int main() {
-//     // Test 1
-//     {
-//         struct PTE page_table[TABLEMAX] = {0};
-//         int frame_pool[POOLMAX] = {0};
-//         int frame_cnt = 1; 
-//         int table_cnt = 1; 
-//         int reference_string[REFERENCEMAX] = {1, 1, 1, 1, 1, 1, 1, 1};
+int main() {
+    // Declare the required variables
+    struct PTE page_table[TABLEMAX];
+    int reference_string[REFERENCEMAX];
+    int frame_pool[POOLMAX];
+    int table_cnt = 0, frame_cnt = 0, reference_cnt = 0;
 
-//         int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, 8, frame_pool, frame_cnt);
-//         printf("Faults for Test 1: %d\n", faults);
-//         assert(faults == 0);
-//     }
+    // Initialize frame pool
+    for (int i = 0; i < POOLMAX; i++) {
+        frame_pool[i] = -1;
+    }
 
-//     // Test 2
-//     {
-//         struct PTE page_table[TABLEMAX] = {0};
-//         int frame_pool[POOLMAX] = {0};
-//         int frame_cnt = 1; 
-//         int table_cnt = 8; 
-//         int reference_string[REFERENCEMAX] = {1, 2, 3, 4, 5, 6, 7, 8};
+    // Initialize the page_table and reference_string to simulate your test scenario
+    // Below is a placeholder, you'll have to fill it with your actual data
+    for (int i = 0; i < TABLEMAX; i++) {
+        page_table[i].is_valid = 0; // starting all pages as invalid
+        page_table[i].frame_number = -1; // no frame is allocated initially
+        page_table[i].arrival_timestamp = 0; 
+        page_table[i].last_access_timestamp = 0;
+        page_table[i].reference_count = 0;
+    }
 
-//         int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, 8, frame_pool, frame_cnt);
-//         assert(faults == 7);
-//     }
+    // Initialize the reference string such that it will generate 8 page faults with your settings.
+    // Again, below is a placeholder, fill it with actual data
+    reference_string[0] = 0;
+    reference_string[1] = 1;
+    reference_string[2] = 2;
+    reference_string[3] = 3;
+    reference_string[4] = 4;
+    reference_string[5] = 5;
+    reference_string[6] = 6;
+    reference_string[7] = 7;
+    reference_cnt = 8; // There are 8 pages in the reference string
+    frame_cnt = 3; // Let's say there are only 3 frames in the frame pool
 
-//     // Test 3
-//     {
-//         struct PTE page_table[TABLEMAX] = {0};
-//         int frame_pool[POOLMAX] = {0};
-//         int frame_cnt = 2; 
-//         int table_cnt = 8; 
-//         int reference_string[REFERENCEMAX] = {1, 2, 3, 4, 5, 6, 7, 8};
+    int result = count_page_faults_fifo(page_table, TABLEMAX, reference_string, reference_cnt, frame_pool, frame_cnt);
 
-//         int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, 8, frame_pool, frame_cnt);
-//         assert(faults == 6);
-//     }
+    printf("Expected Page Faults: 8, Actual Page Faults: %d\n", result);
+    
+    return 0;
+}
 
-//     printf("All tests passed!\n");
-
-//     return 0;
-// }
 
 
 
