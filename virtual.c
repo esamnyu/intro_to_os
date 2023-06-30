@@ -20,67 +20,48 @@ bool process_page_and_check_fault(struct PTE page_table[TABLEMAX], int *table_cn
     return false;
 }
 
-int process_page_access_fifo(struct PTE page_table[TABLEMAX],int *table_cnt, int page_number, int frame_pool[POOLMAX],int *frame_cnt, int current_timestamp) {
+int process_page_access_fifo(struct PTE page_table[TABLEMAX], int *table_cnt, int page_number, int frame_pool[POOLMAX], int *frame_cnt, int current_timestamp) {
     // Check if page is already in memory
     if (page_table[page_number].is_valid) {
         page_table[page_number].last_access_timestamp = current_timestamp;
         return page_table[page_number].frame_number;
     }
-    
+
     // Check if there are free frames available
     if (*frame_cnt > 0) {
         int frame = frame_pool[--(*frame_cnt)];
-        
+
         // Update the page table
         page_table[page_number].is_valid = 1;
         page_table[page_number].frame_number = frame;
         page_table[page_number].arrival_timestamp = current_timestamp;
         page_table[page_number].last_access_timestamp = current_timestamp;
 
-        return frame;
+        return -frame; // Page fault occurred as the page was not in memory, so return the frame number as negative
     }
-    
+
     // Find the oldest page for replacement (FIFO)
     int oldest_page = 0;
-    for (int i = 0; i < *table_cnt; i++) {
+    for (int i = 0; i < TABLEMAX; i++) {
         if (page_table[i].arrival_timestamp < page_table[oldest_page].arrival_timestamp) {
             oldest_page = i;
         }
     }
-    
+
     // Replace the oldest page
     int frame = page_table[oldest_page].frame_number;
     page_table[oldest_page].is_valid = 0;
     page_table[oldest_page].frame_number = -1;
     page_table[oldest_page].arrival_timestamp = 0;
     page_table[oldest_page].last_access_timestamp = 0;
-    
+
     // Add the new page
     page_table[page_number].is_valid = 1;
     page_table[page_number].frame_number = frame;
     page_table[page_number].arrival_timestamp = current_timestamp;
     page_table[page_number].last_access_timestamp = current_timestamp;
 
-    return frame;
-}
-
-
-int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int reference_string[REFERENCEMAX], int reference_cnt, int frame_pool[POOLMAX], int frame_cnt) {
-    int page_faults = 0;
-    int current_timestamp = 1;
-
-    for (int i = 0; i < reference_cnt; i++) {
-        int page_number = reference_string[i];
-
-        // If process_page_and_check_fault returns true, a page fault occurred
-        if (process_page_and_check_fault(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, current_timestamp)) {
-            page_faults++;
-        }
-
-        current_timestamp++;
-    }
-
-    return page_faults;
+    return -frame; // Page fault occurred as the page was not in memory and a page replacement was needed, so return the frame number as negative
 }
 
 int process_page_access_lfu(struct PTE page_table[TABLEMAX], int *table_cnt, int page_number, int frame_pool[POOLMAX], int *frame_cnt, int current_timestamp){
