@@ -279,42 +279,42 @@ int count_page_faults_lfu(struct PTE page_table[TABLEMAX], int table_cnt, int re
     return faults;
 }
 
-int main() {
-    struct PTE page_table[TABLEMAX];
-    int frame_pool[POOLMAX] = {0, 1, 2, 3, 4}; // Assume frame pool size is 5
-    int table_cnt = 0;
-    int frame_cnt = POOLMAX;
-    int current_timestamp = 0;
+// int main() {
+//     struct PTE page_table[TABLEMAX];
+//     int frame_pool[POOLMAX] = {0, 1, 2, 3, 4}; // Assume frame pool size is 5
+//     int table_cnt = 0;
+//     int frame_cnt = POOLMAX;
+//     int current_timestamp = 0;
     
-    // Initialize the page table
-    for (int i = 0; i < TABLEMAX; i++) {
-        page_table[i].is_valid = 0;
-        page_table[i].frame_number = -1;
-        page_table[i].arrival_timestamp = 0;
-        page_table[i].last_access_timestamp = 0;
-    }
+//     // Initialize the page table
+//     for (int i = 0; i < TABLEMAX; i++) {
+//         page_table[i].is_valid = 0;
+//         page_table[i].frame_number = -1;
+//         page_table[i].arrival_timestamp = 0;
+//         page_table[i].last_access_timestamp = 0;
+//     }
 
-    // Access pages in this order: 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4
-    int pages_to_access[] = {0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4};
-    int number_of_page_faults = 0;
-    for (int i = 0; i < 13; i++) {
-        int frame = process_page_access_fifo(page_table, &table_cnt, pages_to_access[i], frame_pool, &frame_cnt, current_timestamp++);
-        if (frame < 0) {
-            number_of_page_faults++;
-        }
-    }
+//     // Access pages in this order: 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4
+//     int pages_to_access[] = {0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4};
+//     int number_of_page_faults = 0;
+//     for (int i = 0; i < 13; i++) {
+//         int frame = process_page_access_fifo(page_table, &table_cnt, pages_to_access[i], frame_pool, &frame_cnt, current_timestamp++);
+//         if (frame < 0) {
+//             number_of_page_faults++;
+//         }
+//     }
 
-    // Print the number of page faults
-    printf("Number of page faults: %d\n", number_of_page_faults);
+//     // Print the number of page faults
+//     printf("Number of page faults: %d\n", number_of_page_faults);
 
-    // The expected number of page faults is 8, because we are using FIFO and the frame pool size is 5.
-    // The first 5 accesses will cause page faults because the pages are not in memory.
-    // The next 3 accesses (pages 5, 6, 7) will also cause page faults because they are not in memory and will replace the oldest pages (pages 0, 1, 2).
-    // The final 5 accesses (pages 0, 1, 2, 3, 4) will not cause page faults because these pages are now in memory.
-    assert(number_of_page_faults == 8);
+//     // The expected number of page faults is 8, because we are using FIFO and the frame pool size is 5.
+//     // The first 5 accesses will cause page faults because the pages are not in memory.
+//     // The next 3 accesses (pages 5, 6, 7) will also cause page faults because they are not in memory and will replace the oldest pages (pages 0, 1, 2).
+//     // The final 5 accesses (pages 0, 1, 2, 3, 4) will not cause page faults because these pages are now in memory.
+//     assert(number_of_page_faults == 8);
 
-    return 0;
-}
+//     return 0;
+// }
 
 
 
