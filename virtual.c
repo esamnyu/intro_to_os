@@ -115,10 +115,53 @@ int process_page_access_lru(struct PTE page_table[TABLEMAX],int *table_cnt, int 
     return 0;
 }
 
-int count_page_faults_lru(struct PTE page_table[TABLEMAX],int table_cnt, int refrence_string[REFERENCEMAX],int reference_cnt,int frame_pool[POOLMAX],int frame_cnt) {
-    // This is just a stub function. Replace with real implementation later.
-    return 0;
+int count_page_faults_lru(struct PTE page_table[TABLEMAX],int table_cnt, int reference_string[REFERENCEMAX],int reference_cnt,int frame_pool[POOLMAX],int frame_cnt) {
+    int faults = 0;
+    int timestamp = 1;
+    for (int i = 0; i < reference_cnt; ++i) {
+        int page_number = reference_string[i];
+        if (page_table[page_number].is_valid) {
+            // Page is already in memory, update last_access_timestamp
+            page_table[page_number].last_access_timestamp = timestamp;
+        } else {
+            if (frame_cnt > 0) {
+                // There are free frames, use one
+                page_table[page_number].is_valid = 1;
+                page_table[page_number].frame_number = frame_pool[--frame_cnt];
+                page_table[page_number].arrival_timestamp = timestamp;
+                page_table[page_number].last_access_timestamp = timestamp;
+                page_table[page_number].reference_count = 1;
+            } else {
+                // No free frames, apply LRU policy to replace a page
+                int lru_page = -1;
+                int earliest_timestamp = INT_MAX;
+                for (int j = 0; j < table_cnt; ++j) {
+                    if (page_table[j].is_valid && page_table[j].last_access_timestamp < earliest_timestamp) {
+                        lru_page = j;
+                        earliest_timestamp = page_table[j].last_access_timestamp;
+                    }
+                }
+
+                // Invalidate the LRU page
+                page_table[lru_page].is_valid = 0;
+                page_table[lru_page].arrival_timestamp = 0;
+                page_table[lru_page].last_access_timestamp = 0;
+                page_table[lru_page].reference_count = 0;
+
+                // Use the freed frame for the new page
+                page_table[page_number].is_valid = 1;
+                page_table[page_number].frame_number = page_table[lru_page].frame_number;
+                page_table[page_number].arrival_timestamp = timestamp;
+                page_table[page_number].last_access_timestamp = timestamp;
+                page_table[page_number].reference_count = 1;
+            }
+            ++faults;
+        }
+        ++timestamp;
+    }
+    return faults;
 }
+
 
 int process_page_access_lfu(struct PTE page_table[TABLEMAX],int *table_cnt, int page_number, int frame_pool[POOLMAX],int *frame_cnt, int current_timestamp) {
     // This is just a stub function. Replace with real implementation later.
