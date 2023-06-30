@@ -195,7 +195,7 @@ int count_page_faults_lru(struct PTE page_table[TABLEMAX], int table_cnt, int re
         struct PTE* page = &page_table[page_number];
 
         // Page is in memory
-        if (page->valid_bit) {
+        if (page->is_valid) {
             page->last_access_timestamp = timestamp;
             page->reference_count++;
         } else {
@@ -205,7 +205,7 @@ int count_page_faults_lru(struct PTE page_table[TABLEMAX], int table_cnt, int re
             // There are free frames
             if (frame_cnt > 0) {
                 page->frame_number = frame_pool[--frame_cnt];
-                page->valid_bit = true;
+                page->is_valid = true;
                 page->arrival_timestamp = timestamp;
                 page->last_access_timestamp = timestamp;
                 page->reference_count = 1;
@@ -216,7 +216,7 @@ int count_page_faults_lru(struct PTE page_table[TABLEMAX], int table_cnt, int re
 
                 // Find the least recently used page
                 for (int j = 0; j < table_cnt; j++) {
-                    if (page_table[j].valid_bit && page_table[j].last_access_timestamp < lru_timestamp) {
+                    if (page_table[j].is_valid && page_table[j].last_access_timestamp < lru_timestamp) {
                         lru_timestamp = page_table[j].last_access_timestamp;
                         lru_page_number = j;
                     }
@@ -224,7 +224,7 @@ int count_page_faults_lru(struct PTE page_table[TABLEMAX], int table_cnt, int re
 
                 // Replace the least recently used page
                 struct PTE* lru_page = &page_table[lru_page_number];
-                lru_page->valid_bit = false;
+                lru_page->is_valid = false;
                 lru_page->arrival_timestamp = 0;
                 lru_page->last_access_timestamp = 0;
                 lru_page->reference_count = 0;
@@ -232,7 +232,7 @@ int count_page_faults_lru(struct PTE page_table[TABLEMAX], int table_cnt, int re
                 // Assign the newly freed frame to the current page
                 page->frame_number = lru_page->frame_number;
                 lru_page->frame_number = -1;
-                page->valid_bit = true;
+                page->is_valid = true;
                 page->arrival_timestamp = timestamp;
                 page->last_access_timestamp = timestamp;
                 page->reference_count = 1;
