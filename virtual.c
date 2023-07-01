@@ -30,13 +30,17 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int r
         } else {
             // No free frames, replace the oldest (FIFO)
             int oldest_page = -1;
+            int oldest_frame = INT_MAX;
             for (int j = 0; j < table_cnt; j++) {
-                if (page_table[j].is_valid && (oldest_page == -1 || page_table[j].arrival_timestamp < page_table[oldest_page].arrival_timestamp)) {
+                if (page_table[j].is_valid && page_table[j].arrival_timestamp < oldest_frame) {
                     oldest_page = j;
+                    oldest_frame = page_table[j].arrival_timestamp;
                 }
             }
-            // Replace the oldest page with the new page
+            // Invalidate the oldest page
             page_table[oldest_page].is_valid = 0;
+
+            // Replace the frame from the oldest page with the new page
             page_table[page_num].is_valid = 1;
             page_table[page_num].frame_number = page_table[oldest_page].frame_number;
             page_table[page_num].arrival_timestamp = i;
@@ -45,6 +49,7 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int r
 
     return page_faults;
 }
+
 
 
 
