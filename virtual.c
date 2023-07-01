@@ -4,6 +4,20 @@
 #include <assert.h>
 #include <stdbool.h>
 
+// #define QUEUEMAX 10
+// #define MAPMAX 10
+// #define TABLEMAX 10
+// #define POOLMAX 10
+// #define REFERENCEMAX 20
+
+// struct PTE {
+//     int is_valid;
+//     int frame_number;
+//     int arrival_timestamp;
+//     int last_access_timestamp;
+//     int reference_count;
+// };
+
 int count_page_faults_fifo(struct PTE page_table[TABLEMAX],int table_cnt, int reference_string[REFERENCEMAX],int reference_cnt,int frame_pool[POOLMAX],int frame_cnt) {
     int page_faults = 0;
     int frame_index = 0;
@@ -180,40 +194,36 @@ int process_page_access_lfu(struct PTE page_table[TABLEMAX],int *table_cnt, int 
 }
 
 
+void print_results(int result, int expected) {
+    if(result == expected) {
+        printf("Test Passed: Received %d as expected.\n", result);
+    } else {
+        printf("Test Failed: Expected %d but received %d.\n", expected, result);
+    }
+}
+
 // int main() {
-//     struct PTE page_table[TABLEMAX];
-//     int reference_string[REFERENCEMAX];
-//     int frame_pool[POOLMAX];
+//     // Test Case 1: Expected page faults = 10
+//     struct PTE page_table1[TABLEMAX] = {0}; // Initialize all elements to 0/false
+//     int table_cnt1 = 10;
+//     int reference_string1[REFERENCEMAX] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+//     int reference_cnt1 = 10;
+//     int frame_pool1[POOLMAX] = {0, 1, 2, 3, 4};
+//     int frame_cnt1 = 5; // Less frames than pages
 
-//     // Populate the page_table, reference_string, and frame_pool with appropriate values
+//     int result1 = count_page_faults_fifo(page_table1, table_cnt1, reference_string1, reference_cnt1, frame_pool1, frame_cnt1);
+//     print_results(result1, 10); // We expect 10 page faults here
 
-//     // For the purpose of the example, let's assume the table contains 5 entries, the reference string
-//     // contains 10 entries, and the frame pool contains 3 frames.
-//     int table_cnt = 5, reference_cnt = 10, frame_cnt = 3;
+//     // Test Case 2: Expected page faults = 9
+//     struct PTE page_table2[TABLEMAX] = {0}; // Initialize all elements to 0/false
+//     int table_cnt2 = 10;
+//     int reference_string2[REFERENCEMAX] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+//     int reference_cnt2 = 9;
+//     int frame_pool2[POOLMAX] = {0, 1, 2, 3, 4};
+//     int frame_cnt2 = 5; // Less frames than pages
 
-//     for(int i=0; i<table_cnt; i++) {
-//         // Initialize all entries of page_table as invalid
-//         page_table[i].is_valid = false;
-//         page_table[i].frame_number = -1;
-//         page_table[i].arrival_timestamp = -1;
-//     }
-
-//     // Initialize the reference_string, this should ideally be randomized or provided in the problem.
-//     for(int i=0; i<reference_cnt; i++) {
-//         reference_string[i] = i % table_cnt;
-//     }
-
-//     // Initialize the frame_pool, again this should be provided in the problem.
-//     for(int i=0; i<frame_cnt; i++) {
-//         frame_pool[i] = i;
-//     }
-
-//     int result = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
-
-//     // Expecting 10 faults, test will fail if the result is not 10
-//     assert(result == 10);
-
-//     printf("Test passed\n");
+//     int result2 = count_page_faults_fifo(page_table2, table_cnt2, reference_string2, reference_cnt2, frame_pool2, frame_cnt2);
+//     print_results(result2, 9); // We expect 9 page faults here
 
 //     return 0;
 // }
