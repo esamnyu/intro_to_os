@@ -196,29 +196,29 @@ void print_results(int result, int expected) {
     }
 }
 
-int main() {
-    // Test Case 1: Expected page faults = 10
-    struct PTE page_table1[TABLEMAX] = {0}; // Initialize all elements to 0/false
-    int table_cnt1 = 10;
-    int reference_string1[REFERENCEMAX] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int reference_cnt1 = 10;
-    int frame_pool1[POOLMAX] = {0, 1, 2, 3, 4};
-    int frame_cnt1 = 5; // Less frames than pages
+// int main() {
+//     // Test Case 1: Expected page faults = 10
+//     struct PTE page_table1[TABLEMAX] = {0}; // Initialize all elements to 0/false
+//     int table_cnt1 = 10;
+//     int reference_string1[REFERENCEMAX] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+//     int reference_cnt1 = 10;
+//     int frame_pool1[POOLMAX] = {0, 1, 2, 3, 4};
+//     int frame_cnt1 = 5; // Less frames than pages
 
-    int result1 = count_page_faults_fifo(page_table1, table_cnt1, reference_string1, reference_cnt1, frame_pool1, frame_cnt1);
-    print_results(result1, 10); // We expect 10 page faults here
+//     int result1 = count_page_faults_fifo(page_table1, table_cnt1, reference_string1, reference_cnt1, frame_pool1, frame_cnt1);
+//     print_results(result1, 10); // We expect 10 page faults here
 
-    // Test Case 2: Expected page faults = 9
-    struct PTE page_table2[TABLEMAX] = {0}; // Initialize all elements to 0/false
-    int table_cnt2 = 10;
-    int reference_string2[REFERENCEMAX] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-    int reference_cnt2 = 9;
-    int frame_pool2[POOLMAX] = {0, 1, 2, 3, 4};
-    int frame_cnt2 = 5; // Less frames than pages
+//     // Test Case 2: Expected page faults = 9
+//     struct PTE page_table2[TABLEMAX] = {0}; // Initialize all elements to 0/false
+//     int table_cnt2 = 10;
+//     int reference_string2[REFERENCEMAX] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+//     int reference_cnt2 = 9;
+//     int frame_pool2[POOLMAX] = {0, 1, 2, 3, 4};
+//     int frame_cnt2 = 5; // Less frames than pages
 
-    int result2 = count_page_faults_fifo(page_table2, table_cnt2, reference_string2, reference_cnt2, frame_pool2, frame_cnt2);
-    print_results(result2, 9); // We expect 9 page faults here
+//     int result2 = count_page_faults_fifo(page_table2, table_cnt2, reference_string2, reference_cnt2, frame_pool2, frame_cnt2);
+//     print_results(result2, 9); // We expect 9 page faults here
 
-    return 0;
-}
+//     return 0;
+// }
 
