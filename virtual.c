@@ -6,46 +6,46 @@
 
 int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int reference_string[REFERENCEMAX], int reference_cnt, int frame_pool[POOLMAX], int frame_cnt) {
     int page_faults = 0;
-    int frame_index = 0;
 
     for (int i = 0; i < reference_cnt; i++) {
-        int found = 0;
-        for (int j = 0; j < table_cnt; j++) {
-            if (page_table[j].is_valid && j == reference_string[i]) {
-                found = 1;
-                break;
-            }
+        int page_num = reference_string[i];
+        if (page_table[page_num].is_valid) {
+            // Page is in memory, no page fault
+            continue;
         }
 
-        if (!found) {
-            page_faults++;
-            if (frame_index < frame_cnt) {
-                // Still have free frames in the pool
-                page_table[reference_string[i]].is_valid = 1;
-                page_table[reference_string[i]].frame_number = frame_pool[frame_index];
-                page_table[reference_string[i]].arrival_timestamp = i;  // Using the reference string index as the timestamp
-                frame_index++;
-            } else {
-                // Need to replace the oldest frame (FIFO)
-                int oldest_index = 0;
-                for (int j = 1; j < table_cnt; j++) {
-                    if (page_table[j].is_valid && page_table[j].arrival_timestamp < page_table[oldest_index].arrival_timestamp) {
-                        oldest_index = j;
-                    }
-                }
-                // Invalidate the replaced page
-                page_table[oldest_index].is_valid = 0;
+        // Page fault
+        page_faults++;
 
-                // Replace the oldest frame with the new page
-                page_table[reference_string[i]].is_valid = 1;
-                page_table[reference_string[i]].frame_number = page_table[oldest_index].frame_number;  // Reuse the frame number
-                page_table[reference_string[i]].arrival_timestamp = i;  // Using the reference string index as the timestamp
+        if (frame_cnt > 0) {
+            // We have free frames in the pool, allocate one to the page
+            page_table[page_num].is_valid = 1;
+            page_table[page_num].frame_number = frame_pool[0];
+            page_table[page_num].arrival_timestamp = i;
+            // Shift the frame_pool left, simulating removing a frame from the pool
+            for (int j = 0; j < frame_cnt - 1; j++) {
+                frame_pool[j] = frame_pool[j + 1];
             }
+            frame_cnt--;
+        } else {
+            // No free frames, replace the oldest (FIFO)
+            int oldest_page = -1;
+            for (int j = 0; j < table_cnt; j++) {
+                if (page_table[j].is_valid && (oldest_page == -1 || page_table[j].arrival_timestamp < page_table[oldest_page].arrival_timestamp)) {
+                    oldest_page = j;
+                }
+            }
+            // Replace the oldest page with the new page
+            page_table[oldest_page].is_valid = 0;
+            page_table[page_num].is_valid = 1;
+            page_table[page_num].frame_number = page_table[oldest_page].frame_number;
+            page_table[page_num].arrival_timestamp = i;
         }
     }
 
     return page_faults;
 }
+
 
 
 
