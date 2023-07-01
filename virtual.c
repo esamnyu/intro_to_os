@@ -11,7 +11,7 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int r
     for (int i = 0; i < reference_cnt; i++) {
         int found = 0;
         for (int j = 0; j < table_cnt; j++) {
-            if (page_table[j].is_valid && page_table[j].frame_number == reference_string[i]) {
+            if (page_table[j].is_valid && j == reference_string[i]) {
                 found = 1;
                 break;
             }
@@ -21,26 +21,32 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int r
             page_faults++;
             if (frame_index < frame_cnt) {
                 // Still have free frames in the pool
-                page_table[frame_index].is_valid = 1;
-                page_table[frame_index].frame_number = reference_string[i];
+                page_table[reference_string[i]].is_valid = 1;
+                page_table[reference_string[i]].frame_number = frame_pool[frame_index];
+                page_table[reference_string[i]].arrival_timestamp = i;  // Using the reference string index as the timestamp
                 frame_index++;
             } else {
                 // Need to replace the oldest frame (FIFO)
                 int oldest_index = 0;
                 for (int j = 1; j < table_cnt; j++) {
-                    if (page_table[j].arrival_timestamp < page_table[oldest_index].arrival_timestamp) {
+                    if (page_table[j].is_valid && page_table[j].arrival_timestamp < page_table[oldest_index].arrival_timestamp) {
                         oldest_index = j;
                     }
                 }
-                page_table[oldest_index].is_valid = 1;
-                page_table[oldest_index].frame_number = reference_string[i];
-                page_table[oldest_index].arrival_timestamp = i;  // Assuming the reference string index can serve as the timestamp
+                // Invalidate the replaced page
+                page_table[oldest_index].is_valid = 0;
+
+                // Replace the oldest frame with the new page
+                page_table[reference_string[i]].is_valid = 1;
+                page_table[reference_string[i]].frame_number = page_table[oldest_index].frame_number;  // Reuse the frame number
+                page_table[reference_string[i]].arrival_timestamp = i;  // Using the reference string index as the timestamp
             }
         }
     }
 
     return page_faults;
 }
+
 
 
 
