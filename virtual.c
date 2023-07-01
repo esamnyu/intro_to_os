@@ -8,34 +8,24 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX],int table_cnt, int re
     int page_faults = 0;
     int frame_index = 0;
     int timestamp = 1;
-    
+
     for (int i = 0; i < reference_cnt; i++) {
-        int page_found = 0;
-        
-        // Check if page is already in memory
-        for (int j = 0; j < table_cnt; j++) {
-            if (page_table[j].is_valid && page_table[j].frame_number == reference_string[i]) {
-                page_table[j].last_access_timestamp = timestamp;
-                page_table[j].reference_count += 1;
-                page_found = 1;
-                break;
-            }
-        }
-        
-        // Page is not in memory
-        if (!page_found) {
+        int page_number = reference_string[i];
+        struct PTE *page = &page_table[page_number];
+
+        if (page->is_valid) {
+            // Page is in memory, update its last access timestamp and reference count
+            page->last_access_timestamp = timestamp;
+            page->reference_count++;
+        } else {
+            // Page fault
             page_faults++;
-            
-            // If there are free frames, use one
+
             if (frame_index < frame_cnt) {
-                int frame = frame_pool[frame_index++];
-                page_table[reference_string[i]].is_valid = 1;
-                page_table[reference_string[i]].frame_number = frame;
-                page_table[reference_string[i]].arrival_timestamp = timestamp;
-                page_table[reference_string[i]].last_access_timestamp = timestamp;
-                page_table[reference_string[i]].reference_count = 1;
+                // There are free frames, allocate one to the page
+                page->frame_number = frame_pool[frame_index++];
             } else {
-                // Replace the oldest page
+                // No free frames, need to replace an existing page
                 int oldest_index = -1;
                 int oldest_timestamp = INT_MAX;
                 for (int j = 0; j < table_cnt; j++) {
@@ -44,23 +34,23 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX],int table_cnt, int re
                         oldest_index = j;
                     }
                 }
-                int replaced_frame = page_table[oldest_index].frame_number;
+                // Invalidate the replaced page
                 page_table[oldest_index].is_valid = 0;
                 page_table[oldest_index].arrival_timestamp = -1;
                 page_table[oldest_index].last_access_timestamp = -1;
                 page_table[oldest_index].reference_count = -1;
-                
-                page_table[reference_string[i]].is_valid = 1;
-                page_table[reference_string[i]].frame_number = replaced_frame;
-                page_table[reference_string[i]].arrival_timestamp = timestamp;
-                page_table[reference_string[i]].last_access_timestamp = timestamp;
-                page_table[reference_string[i]].reference_count = 1;
+
+                // Give its frame to the new page
+                page->frame_number = page_table[oldest_index].frame_number;
             }
+            // Update the new page's details
+            page->is_valid = 1;
+            page->arrival_timestamp = timestamp;
+            page->last_access_timestamp = timestamp;
+            page->reference_count = 1;
         }
-        
         timestamp++;
     }
-    
     return page_faults;
 }
 
