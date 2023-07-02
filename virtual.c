@@ -289,26 +289,26 @@ int process_page_access_lfu(struct PTE page_table[TABLEMAX], int *table_cnt, int
 
 
 
-int main() {
-    struct PTE page_table[TABLEMAX];
-    int table_cnt = 8;
-    int reference_string[REFERENCEMAX] = {0, 3, 2, 6, 3, 4, 5, 2, 4, 6, 5};
-    int reference_cnt = 11;
-    int frame_pool[POOLMAX] = {0, 1, 2};
-    int frame_cnt = 3;
+// int main() {
+//     struct PTE page_table[TABLEMAX];
+//     int table_cnt = 8;
+//     int reference_string[REFERENCEMAX] = {0, 3, 2, 6, 3, 4, 5, 2, 4, 6, 5};
+//     int reference_cnt = 11;
+//     int frame_pool[POOLMAX] = {0, 1, 2};
+//     int frame_cnt = 3;
 
-    // Initialize the page table
-    for (int i = 0; i < table_cnt; ++i) {
-        page_table[i].is_valid = false;
-        page_table[i].frame_number = -1;
-        page_table[i].arrival_timestamp = -1;
-        page_table[i].last_access_timestamp = -1;
-        page_table[i].reference_count = -1;
-    }
+//     // Initialize the page table
+//     for (int i = 0; i < table_cnt; ++i) {
+//         page_table[i].is_valid = false;
+//         page_table[i].frame_number = -1;
+//         page_table[i].arrival_timestamp = -1;
+//         page_table[i].last_access_timestamp = -1;
+//         page_table[i].reference_count = -1;
+//     }
 
-    // Call your function and print the output
-    int faults = count_page_faults_lru(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
-    printf("Number of faults: %d\n", faults);  // Expected output: 9
+//     // Call your function and print the output
+//     int faults = count_page_faults_lru(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
+//     printf("Number of faults: %d\n", faults);  // Expected output: 9
 
-    return 0;
-}
+//     return 0;
+// }
