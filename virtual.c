@@ -20,7 +20,6 @@
 
 int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int reference_string[REFERENCEMAX], int reference_cnt, int frame_pool[POOLMAX], int frame_cnt) {
     int page_faults = 0;
-    int current_timestamp = 0;
 
     for (int i = 0; i < reference_cnt; i++) {
         int page_number = reference_string[i];
@@ -28,16 +27,13 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int r
         // Save the old validity of the page
         int old_validity = page_table[page_number].is_valid;
         
-        // Process the page access
-        process_page_access_fifo(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, current_timestamp);
+        // Process the page access with timestamp starting from 1
+        process_page_access_fifo(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, i+1);
         
         // If the page was invalid before and is valid now, it's a page fault
         if (!old_validity && page_table[page_number].is_valid) {
             page_faults++;
         }
-
-        // Increment the current timestamp for every page access
-        current_timestamp++;
     }
 
     return page_faults;
