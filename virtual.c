@@ -295,42 +295,42 @@ int process_page_access_lfu(struct PTE page_table[TABLEMAX], int *table_cnt, int
 }
 
 
-int main() {
-    struct PTE page_table[TABLEMAX];
-    int table_cnt = 8;
-    int reference_string[REFERENCEMAX] = {0, 3, 2, 6, 3, 4, 5, 2, 4, 6, 5};
-    int reference_cnt = 11;
-    int frame_pool[POOLMAX] = {0, 1, 2};
-    int frame_cnt = 3;
-    int expected_faults = 9;
+// int main() {
+//     struct PTE page_table[TABLEMAX];
+//     int table_cnt = 8;
+//     int reference_string[REFERENCEMAX] = {0, 3, 2, 6, 3, 4, 5, 2, 4, 6, 5};
+//     int reference_cnt = 11;
+//     int frame_pool[POOLMAX] = {0, 1, 2};
+//     int frame_cnt = 3;
+//     int expected_faults = 9;
 
-    for (int i = 0; i < table_cnt; i++) {
-        page_table[i].is_valid = false;
-        page_table[i].frame_number = -1;
-        page_table[i].arrival_timestamp = -1;
-        page_table[i].last_access_timestamp = -1;
-        page_table[i].reference_count = -1;
-    }
+//     for (int i = 0; i < table_cnt; i++) {
+//         page_table[i].is_valid = false;
+//         page_table[i].frame_number = -1;
+//         page_table[i].arrival_timestamp = -1;
+//         page_table[i].last_access_timestamp = -1;
+//         page_table[i].reference_count = -1;
+//     }
 
-    int faults = 0;
-    for (int i = 0; i < reference_cnt; i++) {
-        faults += count_page_faults_lru(page_table, table_cnt, &reference_string[i], 1, frame_pool, frame_cnt); // remove & from frame_cnt
-        printf("After reference %d, faults: %d\n", reference_string[i], faults);
-        printf("Page table state:\n");
-        for (int j = 0; j < table_cnt; j++) {
-            printf("Page %d: valid: %d, frame_number: %d, arrival_timestamp: %d, last_access_timestamp: %d, reference_count: %d\n",
-                   j, page_table[j].is_valid, page_table[j].frame_number,
-                   page_table[j].arrival_timestamp, page_table[j].last_access_timestamp,
-                   page_table[j].reference_count);
-        }
-        printf("\n");
-    }
+//     int faults = 0;
+//     for (int i = 0; i < reference_cnt; i++) {
+//         faults += count_page_faults_lru(page_table, table_cnt, &reference_string[i], 1, frame_pool, frame_cnt); // remove & from frame_cnt
+//         printf("After reference %d, faults: %d\n", reference_string[i], faults);
+//         printf("Page table state:\n");
+//         for (int j = 0; j < table_cnt; j++) {
+//             printf("Page %d: valid: %d, frame_number: %d, arrival_timestamp: %d, last_access_timestamp: %d, reference_count: %d\n",
+//                    j, page_table[j].is_valid, page_table[j].frame_number,
+//                    page_table[j].arrival_timestamp, page_table[j].last_access_timestamp,
+//                    page_table[j].reference_count);
+//         }
+//         printf("\n");
+//     }
 
-    if (faults == expected_faults) {
-        printf("Test Passed\n");
-    } else {
-        printf("Test Failed, Expected %d faults but got %d\n", expected_faults, faults);
-    }
+//     if (faults == expected_faults) {
+//         printf("Test Passed\n");
+//     } else {
+//         printf("Test Failed, Expected %d faults but got %d\n", expected_faults, faults);
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
