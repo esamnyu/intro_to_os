@@ -218,36 +218,36 @@ int process_page_access_lfu(struct PTE page_table[TABLEMAX],int *table_cnt, int 
 
 
 
-int main() {
-    struct PTE page_table[TABLEMAX];
-    int table_cnt = 5;
-    int frame_pool[POOLMAX];
-    int frame_cnt = 3;
+// int main() {
+//     struct PTE page_table[TABLEMAX];
+//     int table_cnt = 5;
+//     int frame_pool[POOLMAX];
+//     int frame_cnt = 3;
 
-    // Initialize the page table and frame pool
-    for (int i = 0; i < table_cnt; i++) {
-        page_table[i].is_valid = 0;
-        page_table[i].frame_number = -1;
-        page_table[i].arrival_timestamp = -1;
-        page_table[i].last_access_timestamp = -1;
-        page_table[i].reference_count = -1;
-    }
-    for (int i = 0; i < frame_cnt; i++) {
-        frame_pool[i] = i;
-    }
+//     // Initialize the page table and frame pool
+//     for (int i = 0; i < table_cnt; i++) {
+//         page_table[i].is_valid = 0;
+//         page_table[i].frame_number = -1;
+//         page_table[i].arrival_timestamp = -1;
+//         page_table[i].last_access_timestamp = -1;
+//         page_table[i].reference_count = -1;
+//     }
+//     for (int i = 0; i < frame_cnt; i++) {
+//         frame_pool[i] = i;
+//     }
 
-    int current_timestamp = 1;
-    int expected_faults = 2;
-    int faults = 0;
+//     int current_timestamp = 1;
+//     int expected_faults = 2;
+//     int faults = 0;
 
-    for (int i = 0; i < table_cnt; i++) {
-        int frame = process_page_access_fifo(page_table, &table_cnt, i, frame_pool, &frame_cnt, current_timestamp);
-        if (frame == -1) {
-            faults++;
-        }
-        current_timestamp++;
-    }
+//     for (int i = 0; i < table_cnt; i++) {
+//         int frame = process_page_access_fifo(page_table, &table_cnt, i, frame_pool, &frame_cnt, current_timestamp);
+//         if (frame == -1) {
+//             faults++;
+//         }
+//         current_timestamp++;
+//     }
 
-    printf("Expected faults: %d, Actual faults: %d\n", expected_faults, faults);
-    return 0;
-}
+//     printf("Expected faults: %d, Actual faults: %d\n", expected_faults, faults);
+//     return 0;
+// }
