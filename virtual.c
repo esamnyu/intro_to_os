@@ -268,8 +268,6 @@ int process_page_access_lfu(struct PTE page_table[TABLEMAX], int *table_cnt, int
 }
 
 
-#include <stdio.h>
-
 // Assuming the structure and constants are defined somewhere before this.
 
 // int main() {
