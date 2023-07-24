@@ -22,11 +22,15 @@
 int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int reference_string[REFERENCEMAX], 
                            int reference_cnt, int frame_pool[POOLMAX], int frame_cnt) {
     int faults = 0;
+    int timestamp = 0;  // Initialize timestamp to 0
 
     // Process each page access in the reference string
     for (int i = 0; i < reference_cnt; i++) {
         int page_number = reference_string[i];
-        int frame_number = process_page_access_fifo(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, i + 1);
+        
+        timestamp++;  // Increment timestamp before calling process_page_access_fifo
+
+        int frame_number = process_page_access_fifo(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, timestamp);
 
         // If the frame number returned is -1, then a page fault has occurred
         if (frame_number == -1) {
@@ -36,9 +40,6 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int r
 
     return faults;
 }
-
-
-
 
 
 
@@ -350,12 +351,12 @@ void test_case_5() {
     printf("Test Case 5 - Page Faults: %d\n", faults);
 }
 
-// int main() {
-//     test_case_1();
-//     test_case_2();
-//     test_case_3();
-//     test_case_4();
-//     test_case_5();
+int main() {
+    test_case_1();
+    test_case_2();
+    test_case_3();
+    test_case_4();
+    test_case_5();
 
-//     return 0;
-// }
+    return 0;
+}
