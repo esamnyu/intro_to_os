@@ -271,52 +271,91 @@ int process_page_access_lfu(struct PTE page_table[TABLEMAX], int *table_cnt, int
         return frame_number;
     }
 }
-// void test_case_1() {
-//     struct PTE page_table[TABLEMAX] = { {1, 0, 0, 0, 0}, {1, 1, 0, 0, 0}, {1, 2, 0, 0, 0} };
-//     int table_cnt = 3;
+void test_case_1() {
+    struct PTE page_table[TABLEMAX] = { {1, 0, 0, 0, 0}, {1, 1, 0, 0, 0}, {1, 2, 0, 0, 0} };
+    int table_cnt = 3;
 
-//     int reference_string[REFERENCEMAX] = {0, 1, 2};
-//     int reference_cnt = 3;
+    int reference_string[REFERENCEMAX] = {0, 1, 2};
+    int reference_cnt = 3;
 
-//     int frame_pool[POOLMAX] = {0, 1, 2};
-//     int frame_cnt = 0;
+    int frame_pool[POOLMAX] = {0, 1, 2};
+    int frame_cnt = 0;
 
-//     int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
-//     printf("Test Case 1 - Page Faults: %d\n", faults);  // should print "Page Faults: 0"
-// }
+    int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
+    printf("Test Case 1 - Page Faults: %d\n", faults);  // should print "Page Faults: 0"
+}
 
-// void test_case_2() {
-//     struct PTE page_table[TABLEMAX] = { {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0} };
-//     int table_cnt = 3;
+void test_case_2() {
+    struct PTE page_table[TABLEMAX] = { {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0} };
+    int table_cnt = 3;
 
-//     int reference_string[REFERENCEMAX] = {0, 1, 2};
-//     int reference_cnt = 3;
+    int reference_string[REFERENCEMAX] = {0, 1, 2};
+    int reference_cnt = 3;
 
-//     int frame_pool[POOLMAX] = {0, 1, 2};
-//     int frame_cnt = 3;
+    int frame_pool[POOLMAX] = {0, 1, 2};
+    int frame_cnt = 3;
 
-//     int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
-//     printf("Test Case 2 - Page Faults: %d\n", faults);  // should print "Page Faults: 3"
-// }
+    int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
+    printf("Test Case 2 - Page Faults: %d\n", faults);  // should print "Page Faults: 3"
+}
 
-// void test_case_3() {
-//     struct PTE page_table[TABLEMAX] = { {1, 0, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0} };
-//     int table_cnt = 3;
+void test_case_3() {
+    struct PTE page_table[TABLEMAX] = { {1, 0, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0} };
+    int table_cnt = 3;
 
-//     int reference_string[REFERENCEMAX] = {0, 1, 2};
-//     int reference_cnt = 3;
+    int reference_string[REFERENCEMAX] = {0, 1, 2};
+    int reference_cnt = 3;
 
-//     int frame_pool[POOLMAX] = {1, 2};
-//     int frame_cnt = 2;
+    int frame_pool[POOLMAX] = {1, 2};
+    int frame_cnt = 2;
 
-//     int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
-//     printf("Test Case 3 - Page Faults: %d\n", faults);  // should print "Page Faults: 2"
-// }
+    int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
+    printf("Test Case 3 - Page Faults: %d\n", faults);  // should print "Page Faults: 2"
+}
+
+void test_case_4() {
+    struct PTE page_table[TABLEMAX] = {
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0}
+    };
+    int table_cnt = 5;
+    int reference_string[REFERENCEMAX] = {2, 3, 2, 1, 5, 2, 4, 5, 3, 2, 5, 2};
+    int reference_cnt = 12;
+    int frame_pool[POOLMAX] = {0, 1, 2};
+    int frame_cnt = 3;
+    int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
+    printf("Test Case 4 - Page Faults: %d\n", faults);
+}
+
+void test_case_5() {
+    struct PTE page_table[TABLEMAX] = {
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0},
+        {0, -1, -1, -1, 0}
+    };
+    int table_cnt = 8;
+    int reference_string[REFERENCEMAX] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3};
+    int reference_cnt = 12;
+    int frame_pool[POOLMAX] = {0, 1, 2};
+    int frame_cnt = 3;
+    int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
+    printf("Test Case 5 - Page Faults: %d\n", faults);
+}
 
 // int main() {
 //     test_case_1();
 //     test_case_2();
 //     test_case_3();
+//     test_case_4();
+//     test_case_5();
 
 //     return 0;
 // }
