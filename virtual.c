@@ -351,12 +351,12 @@ void test_case_5() {
     printf("Test Case 5 - Page Faults: %d\n", faults);
 }
 
-int main() {
-    test_case_1();
-    test_case_2();
-    test_case_3();
-    test_case_4();
-    test_case_5();
+// int main() {
+//     test_case_1();
+//     test_case_2();
+//     test_case_3();
+//     test_case_4();
+//     test_case_5();
 
-    return 0;
-}
+//     return 0;
+// }
