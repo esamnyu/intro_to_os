@@ -156,15 +156,12 @@ int process_page_access_fifo(struct PTE page_table[TABLEMAX],int *table_cnt, int
 }
 
 
-
-
-
 int process_page_access_lru(struct PTE page_table[TABLEMAX],int *table_cnt, int page_number, int frame_pool[POOLMAX],int *frame_cnt, int current_timestamp){
     // Check if the page being referenced is already in memory
     if (page_table[page_number].is_valid == 1){
         page_table[page_number].last_access_timestamp = current_timestamp;
         page_table[page_number].reference_count++;
-        return page_table[page_number].frame_number;
+        return page_table[page_number].frame_number; // return frame number if page is already in memory
     }
 
     // Check if there are any free frames
@@ -207,35 +204,34 @@ int process_page_access_lru(struct PTE page_table[TABLEMAX],int *table_cnt, int 
     page_table[page_number].last_access_timestamp = current_timestamp;
     page_table[page_number].reference_count = 1;
 
-    return frame_number;  // return frame_number not -1
+    return -1; // return -1 to indicate a page fault occurred
 }
+
 
 
 
 int count_page_faults_lru(struct PTE page_table[TABLEMAX],int table_cnt, int reference_string[REFERENCEMAX],int reference_cnt,int frame_pool[POOLMAX],int frame_cnt) {
     int faults = 0;
+    int current_timestamp = 1; // Initialize the timestamp
 
     // Process each page access in the reference string
     for (int i = 0; i < reference_cnt; i++) {
         int page_number = reference_string[i];
         
-        // Track the validity of the page before the function call
-        int was_valid = page_table[page_number].is_valid;
-        
         // Call the function
-        int frame_number = process_page_access_lru(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, i + 1);
+        int frame_number = process_page_access_lru(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, current_timestamp);
         
-        // If the page was invalid before but is valid now, a page fault has occurred
-        if (!was_valid && page_table[page_number].is_valid) {
+        // If the frame number returned is -1, then a page fault has occurred
+        if (frame_number == -1) {
             faults++;
         }
+
+        // Increase the current timestamp after processing the page access
+        current_timestamp++;
     }
 
     return faults;
 }
-
-
-
 
 
 
@@ -349,9 +345,25 @@ void test_process_page_access_lru() {
     printf("Test Case - Returned Frame: %d\n", frame_number);  // should print "Returned Frame: 30"
 }
 
-// int main() {
-//     test_process_page_access_lru();
+int main() {
+    struct PTE page_table[TABLEMAX];
+    int table_cnt = 10;
+    int reference_string[REFERENCEMAX] = {0, 1, 2, 3, 4, 3, 0, 1, 2, 4};
+    int reference_cnt = 10;
+    int frame_pool[POOLMAX] = {0, 0, 0, 0};
+    int frame_cnt = 4;
 
-//     return 0;
-// }
+    // Initialize the page_table
+    for (int i = 0; i < table_cnt; i++){
+        page_table[i].is_valid = 0;
+        page_table[i].frame_number = -1;
+        page_table[i].arrival_timestamp = -1;
+        page_table[i].last_access_timestamp = -1;
+        page_table[i].reference_count = 0;
+    }
 
+    int faults = count_page_faults_lru(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
+    printf("Test Case 6 - Page Faults: %d\n", faults);
+
+    return 0;
+}
