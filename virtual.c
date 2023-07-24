@@ -124,7 +124,7 @@ int process_page_access_fifo(struct PTE page_table[TABLEMAX],int *table_cnt, int
         page_table[page_number].arrival_timestamp = current_timestamp;
         page_table[page_number].last_access_timestamp = current_timestamp;
         page_table[page_number].reference_count = 1;
-        return -1;  // return -1 to indicate a page fault occurred
+        return frame_number;  // return frame_number not -1
     }
 
     // If no free frames, need to replace a page
@@ -152,8 +152,10 @@ int process_page_access_fifo(struct PTE page_table[TABLEMAX],int *table_cnt, int
     page_table[page_number].last_access_timestamp = current_timestamp;
     page_table[page_number].reference_count = 1;
 
-    return -1;  // return -1 to indicate a page fault occurred
+    return frame_number;  // return frame_number not -1
 }
+
+
 
 
 
@@ -351,12 +353,20 @@ void test_case_5() {
     printf("Test Case 5 - Page Faults: %d\n", faults);
 }
 
+void test_process_page_access_fifo() {
+    struct PTE page_table[TABLEMAX] = { {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0} };
+    int table_cnt = 3;
+
+    int frame_pool[POOLMAX] = {30};
+    int frame_cnt = 1;
+    int current_timestamp = 1;
+
+    int frame = process_page_access_fifo(page_table, &table_cnt, 0, frame_pool, &frame_cnt, current_timestamp);
+    printf("Test - Returned Frame: %d\n", frame);  // should print "Returned Frame: 30"
+}
+
 // int main() {
-//     test_case_1();
-//     test_case_2();
-//     test_case_3();
-//     test_case_4();
-//     test_case_5();
+//     test_process_page_access_fifo();
 
 //     return 0;
 // }
