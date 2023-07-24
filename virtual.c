@@ -317,10 +317,10 @@ void test_case_3() {
     printf("Test Case 3 - Page Faults: %d\n", faults);  // should print "Page Faults: 9"
 }
 
-int main() {
-    test_case_1();
-    test_case_2();
-    test_case_3();
+// int main() {
+//     test_case_1();
+//     test_case_2();
+//     test_case_3();
 
-    return 0;
-}
+//     return 0;
+// }
