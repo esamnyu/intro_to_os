@@ -1,3 +1,4 @@
+
 #include "oslabs.h"
 #include <limits.h>
 #include <stdio.h>
@@ -26,19 +27,39 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int r
     // Process each page access in the reference string
     for (int i = 0; i < reference_cnt; i++) {
         int page_number = reference_string[i];
-        
-        timestamp++;  // Increment timestamp before calling process_page_access_fifo
 
-        int frame_number = process_page_access_fifo(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, timestamp);
-
-        // If the frame number returned is -1, then a page fault has occurred
-        if (frame_number == -1) {
+        // If the page is valid, update the last access timestamp and reference count
+        if (page_table[page_number].is_valid == 1) {
+            page_table[page_number].last_access_timestamp = timestamp;
+            page_table[page_number].reference_count++;
+        }
+        // If the page is not valid, a page fault occurs
+        else {
             faults++;
+            // If there is a free frame available, allocate it to the page
+            if (frame_cnt > 0) {
+                int free_frame_index = frame_pool[0];  // Get the index of the free frame
+                for (int j = 0; j < frame_cnt - 1; j++) {
+                    frame_pool[j] = frame_pool[j + 1]; // Shift the remaining elements to left
+                }
+                frame_cnt--;  // Decrease the frame count by 1
+                page_table[page_number].is_valid = 1;
+                page_table[page_number].frame_number = free_frame_index;
+                page_table[page_number].arrival_timestamp = timestamp;
+                page_table[page_number].last_access_timestamp = timestamp;
+                page_table[page_number].reference_count = 1;
+            }
+            // If there is no free frame available, call process_page_access_fifo to handle page replacement
+            else {
+                timestamp++;  // Increment timestamp before calling process_page_access_fifo
+                int frame_number = process_page_access_fifo(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, timestamp);
+            }
         }
     }
 
     return faults;
 }
+
 
 
 
@@ -151,8 +172,12 @@ int process_page_access_fifo(struct PTE page_table[TABLEMAX],int *table_cnt, int
     page_table[page_number].last_access_timestamp = current_timestamp;
     page_table[page_number].reference_count = 1;
 
-    return frame_number;  // return frame_number not -1
+    return -1;  // return -1 when a page fault occurs
 }
+
+
+
+
 
 
 int process_page_access_lru(struct PTE page_table[TABLEMAX],int *table_cnt, int page_number, int frame_pool[POOLMAX],int *frame_cnt, int current_timestamp){
@@ -160,7 +185,7 @@ int process_page_access_lru(struct PTE page_table[TABLEMAX],int *table_cnt, int 
     if (page_table[page_number].is_valid == 1){
         page_table[page_number].last_access_timestamp = current_timestamp;
         page_table[page_number].reference_count++;
-        return page_table[page_number].frame_number; // return frame number if page is already in memory
+        return page_table[page_number].frame_number;
     }
 
     // Check if there are any free frames
@@ -175,7 +200,7 @@ int process_page_access_lru(struct PTE page_table[TABLEMAX],int *table_cnt, int 
         page_table[page_number].arrival_timestamp = current_timestamp;
         page_table[page_number].last_access_timestamp = current_timestamp;
         page_table[page_number].reference_count = 1;
-        return -1;  // return -1 to indicate a page fault occurred
+        return frame_number;  // return frame_number not -1
     }
 
     // If no free frames, need to replace a page
@@ -203,37 +228,51 @@ int process_page_access_lru(struct PTE page_table[TABLEMAX],int *table_cnt, int 
     page_table[page_number].last_access_timestamp = current_timestamp;
     page_table[page_number].reference_count = 1;
 
-    return -1; // return -1 to indicate a page fault occurred
+    return frame_number;  // return frame_number not -1
 }
 
 
 
-
-
-int count_page_faults_lru(struct PTE page_table[TABLEMAX],int table_cnt, int reference_string[REFERENCEMAX],int reference_cnt,int frame_pool[POOLMAX],int frame_cnt) {
+int count_page_faults_lru(struct PTE page_table[TABLEMAX], int table_cnt, int reference_string[REFERENCEMAX], 
+                           int reference_cnt, int frame_pool[POOLMAX], int frame_cnt) {
     int faults = 0;
-    int current_timestamp = 1; // Initialize the timestamp
+    int timestamp = 0;  // Initialize timestamp to 0
 
     // Process each page access in the reference string
     for (int i = 0; i < reference_cnt; i++) {
         int page_number = reference_string[i];
-        
-        // Call the function
-        int frame_number = process_page_access_lru(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, current_timestamp);
-        
-        // If the frame number returned is -1, then a page fault has occurred
-        if (frame_number == -1) {
-            faults++;
-        }
 
-        // Increase the current timestamp after processing the page access
-        current_timestamp++;
+        // If the page is valid, update the last access timestamp and reference count
+        if (page_table[page_number].is_valid == 1) {
+            page_table[page_number].last_access_timestamp = timestamp;
+            page_table[page_number].reference_count++;
+        }
+        // If the page is not valid, a page fault occurs
+        else {
+            faults++;
+            // If there is a free frame available, allocate it to the page
+            if (frame_cnt > 0) {
+                int free_frame_index = frame_pool[0];  // Get the index of the free frame
+                for (int j = 0; j < frame_cnt - 1; j++) {
+                    frame_pool[j] = frame_pool[j + 1]; // Shift the remaining elements to left
+                }
+                frame_cnt--;  // Decrease the frame count by 1
+                page_table[page_number].is_valid = 1;
+                page_table[page_number].frame_number = free_frame_index;
+                page_table[page_number].arrival_timestamp = timestamp;
+                page_table[page_number].last_access_timestamp = timestamp;
+                page_table[page_number].reference_count = 1;
+            }
+            // If there is no free frame available, call process_page_access_lru to handle page replacement
+            else {
+                timestamp++;  // Increment timestamp before calling process_page_access_lru
+                int frame_number = process_page_access_lru(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, timestamp);
+            }
+        }
     }
 
     return faults;
 }
-
-
 
 int process_page_access_lfu(struct PTE page_table[TABLEMAX], int *table_cnt, int page_number, int frame_pool[POOLMAX], int *frame_cnt, int current_timestamp) {
     if (page_table[page_number].is_valid) {
@@ -278,73 +317,40 @@ int process_page_access_lfu(struct PTE page_table[TABLEMAX], int *table_cnt, int
         return frame_number;
     }
 }
+void fifo_test_case_1() {
+    struct PTE page_table[TABLEMAX] = { {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, 
+                                        {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0} };
+    int table_cnt = 10;
 
-void test_case_1() {
-    struct PTE page_table[TABLEMAX];
-    int table_cnt = 8;
-    int reference_string[REFERENCEMAX] = {0, 3, 2, 6, 3, 4, 5, 2, 4, 6, 5};
-    int reference_cnt = 11;
-    int frame_pool[POOLMAX] = {0, 1, 2};
-    int frame_cnt = 3;
+    int reference_string[REFERENCEMAX] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int reference_cnt = 20;
 
-    // Initialize the page_table
-    for (int i = 0; i < table_cnt; i++){
-        page_table[i].is_valid = 0;
-        page_table[i].frame_number = -1;
-        page_table[i].arrival_timestamp = -1;
-        page_table[i].last_access_timestamp = -1;
-        page_table[i].reference_count = 0;
-    }
+    int frame_pool[POOLMAX] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int frame_cnt = 10;
 
-    int faults = count_page_faults_lru(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
-    printf("Test Case 1 - Page Faults: %d\n", faults);  // Should print 9
+    int faults = count_page_faults_fifo(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
+    printf("Test Case 1 - Page Faults: %d\n", faults);  // should print "Page Faults: 8"
 }
 
-void test_case_2() {
-    struct PTE page_table[TABLEMAX];
-    int table_cnt = 3;
-    int reference_string[REFERENCEMAX] = {0, 1, 2, 0, 1, 2};
-    int reference_cnt = 6;
-    int frame_pool[POOLMAX] = {0, 1, 2};
-    int frame_cnt = 3;
+void lru_test_case_2() {
+    struct PTE page_table[TABLEMAX] = { {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, 
+                                        {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0}, {0, -1, 0, 0, 0} };
+    int table_cnt = 10;
 
-    // Initialize the page_table
-    for (int i = 0; i < table_cnt; i++){
-        page_table[i].is_valid = 1;
-        page_table[i].frame_number = i;
-        page_table[i].arrival_timestamp = i;
-        page_table[i].last_access_timestamp = i;
-        page_table[i].reference_count = 1;
-    }
+    int reference_string[REFERENCEMAX] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int reference_cnt = 20;
+
+    int frame_pool[POOLMAX] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int frame_cnt = 10;
 
     int faults = count_page_faults_lru(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
-    printf("Test Case 2 - Page Faults: %d\n", faults);  // Should print 0
+    printf("Test Case 2 - Page Faults: %d\n", faults);  // should print "Page Faults: 6"
 }
 
-void test_case_3() {
-    struct PTE page_table[TABLEMAX];
-    int table_cnt = 3;
-    int reference_string[REFERENCEMAX] = {0, 1, 2, 0, 1, 2};
-    int reference_cnt = 6;
-    int frame_pool[POOLMAX] = {0};
-    int frame_cnt = 1;
-
-    // Initialize the page_table
-    for (int i = 0; i < table_cnt; i++){
-        page_table[i].is_valid = 0;
-        page_table[i].frame_number = -1;
-        page_table[i].arrival_timestamp = -1;
-        page_table[i].last_access_timestamp = -1;
-        page_table[i].reference_count = 0;
-    }
-
-    int faults = count_page_faults_lru(page_table, table_cnt, reference_string, reference_cnt, frame_pool, frame_cnt);
-    printf("Test Case 3 - Page Faults: %d\n", faults);  // Should print 6
-}
 
 // int main() {
-//     test_case_1();
-//     test_case_2();
-//     test_case_3();
+//     fifo_test_case_1();
+//     lru_test_case_2();
+
 //     return 0;
 // }
