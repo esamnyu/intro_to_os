@@ -27,33 +27,15 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX], int table_cnt, int r
     // Process each page access in the reference string
     for (int i = 0; i < reference_cnt; i++) {
         int page_number = reference_string[i];
+        
+        timestamp++;  // Increment timestamp before calling process_page_access_fifo
 
-        // If the page is valid, update the last access timestamp and reference count
-        if (page_table[page_number].is_valid == 1) {
-            page_table[page_number].last_access_timestamp = timestamp;
-            page_table[page_number].reference_count++;
-        }
-        // If the page is not valid, a page fault occurs
-        else {
+        int was_valid = page_table[page_number].is_valid;
+        process_page_access_fifo(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, timestamp);
+
+        // If the page was invalid before but is valid now, a page fault has occurred
+        if (!was_valid && page_table[page_number].is_valid) {
             faults++;
-            // If there is a free frame available, allocate it to the page
-            if (frame_cnt > 0) {
-                int free_frame_index = frame_pool[0];  // Get the index of the free frame
-                for (int j = 0; j < frame_cnt - 1; j++) {
-                    frame_pool[j] = frame_pool[j + 1]; // Shift the remaining elements to left
-                }
-                frame_cnt--;  // Decrease the frame count by 1
-                page_table[page_number].is_valid = 1;
-                page_table[page_number].frame_number = free_frame_index;
-                page_table[page_number].arrival_timestamp = timestamp;
-                page_table[page_number].last_access_timestamp = timestamp;
-                page_table[page_number].reference_count = 1;
-            }
-            // If there is no free frame available, call process_page_access_fifo to handle page replacement
-            else {
-                timestamp++;  // Increment timestamp before calling process_page_access_fifo
-                int frame_number = process_page_access_fifo(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, timestamp);
-            }
         }
     }
 
@@ -233,41 +215,22 @@ int process_page_access_lru(struct PTE page_table[TABLEMAX],int *table_cnt, int 
 
 
 
-int count_page_faults_lru(struct PTE page_table[TABLEMAX], int table_cnt, int reference_string[REFERENCEMAX], 
-                           int reference_cnt, int frame_pool[POOLMAX], int frame_cnt) {
+int count_page_faults_lru(struct PTE page_table[TABLEMAX],int table_cnt, int reference_string[REFERENCEMAX],int reference_cnt,int frame_pool[POOLMAX],int frame_cnt) {
     int faults = 0;
-    int timestamp = 0;  // Initialize timestamp to 0
 
     // Process each page access in the reference string
     for (int i = 0; i < reference_cnt; i++) {
         int page_number = reference_string[i];
-
-        // If the page is valid, update the last access timestamp and reference count
-        if (page_table[page_number].is_valid == 1) {
-            page_table[page_number].last_access_timestamp = timestamp;
-            page_table[page_number].reference_count++;
-        }
-        // If the page is not valid, a page fault occurs
-        else {
+        
+        // Track the validity of the page before the function call
+        int was_valid = page_table[page_number].is_valid;
+        
+        // Call the function
+        process_page_access_lru(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, i + 1);
+        
+        // If the page was invalid before but is valid now, a page fault has occurred
+        if (!was_valid && page_table[page_number].is_valid) {
             faults++;
-            // If there is a free frame available, allocate it to the page
-            if (frame_cnt > 0) {
-                int free_frame_index = frame_pool[0];  // Get the index of the free frame
-                for (int j = 0; j < frame_cnt - 1; j++) {
-                    frame_pool[j] = frame_pool[j + 1]; // Shift the remaining elements to left
-                }
-                frame_cnt--;  // Decrease the frame count by 1
-                page_table[page_number].is_valid = 1;
-                page_table[page_number].frame_number = free_frame_index;
-                page_table[page_number].arrival_timestamp = timestamp;
-                page_table[page_number].last_access_timestamp = timestamp;
-                page_table[page_number].reference_count = 1;
-            }
-            // If there is no free frame available, call process_page_access_lru to handle page replacement
-            else {
-                timestamp++;  // Increment timestamp before calling process_page_access_lru
-                int frame_number = process_page_access_lru(page_table, &table_cnt, page_number, frame_pool, &frame_cnt, timestamp);
-            }
         }
     }
 
