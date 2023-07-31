@@ -145,21 +145,13 @@ int count_page_faults_fifo(struct PTE page_table[TABLEMAX],int table_cnt, int re
                         smallest_arrival_index = i;
                     }
                 }
-                // choose the page that has the smallest arrival_timestamp
-                // mark page_table entry as invalid
                 page_table[smallest_arrival_index].is_valid = 0;
-                // set the frame_number of the page-table entry of the newly-referenced page to the newly freed frame
                 page_table[page_number].frame_number = page_table[smallest_arrival_index].frame_number;
-                // set the frame_number to -1
                 page_table[smallest_arrival_index].frame_number = -1;
-                // set the arrival_timestamp to -1
                 page_table[smallest_arrival_index].arrival_timestamp = -1;
-                // set the reference_count to -1
                 page_table[smallest_arrival_index].reference_count = -1;
                 page_table[smallest_arrival_index].last_access_timestamp = -1;
-                // set arrival time_stamp
                 page_table[page_number].arrival_timestamp = current_timestamp;
-                // set is_valid
                 page_table[page_number].is_valid = 1;
                 page_table[page_number].last_access_timestamp = current_timestamp;
                 page_table[page_number].reference_count = 1;
